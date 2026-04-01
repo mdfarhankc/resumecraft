@@ -1,0 +1,113 @@
+{
+  "name": "JOHN DOE",
+  "contact": {
+    "location": "San Francisco, CA, US",
+    "email": "johndoe@email.com",
+    "phone": "+1-234-567-8900",
+    "links": [
+      { "label": "LinkedIn", "url": "https://linkedin.com/in/johndoe" },
+      { "label": "GitHub", "url": "https://github.com/johndoe" }
+    ]
+  },
+  "summary": "Versatile Full-Stack Developer with over 3 years of professional experience in building scalable web and mobile applications using Python, FastAPI, Django, Flask, and Node.js. Experienced with frontend frameworks including React and Flutter. Skilled in PostgreSQL, MongoDB, Redis, Docker, Git, and collaborative development.",
+  "bold_keywords": [
+    "FastAPI", "React", "TypeScript", "PostgreSQL", "MongoDB", "Docker",
+    "Django", "Flask", "Node.js", "Express.js", "Flutter", "Redis",
+    "Pytest", "JWT", "WebSocket-based streaming", "WebSockets",
+    "Docker Compose", "Celery", "REST API", "RESTful APIs",
+    "Firebase", "Google Maps API", "Swagger UI",
+    "OpenAPI 3.0", "Django REST Framework",
+    "role-based access"
+  ],
+  "experience": [
+    {
+      "company": "Acme Solutions LLC",
+      "location": "NEW YORK, NY | REMOTE",
+      "title": "Python Developer",
+      "duration": "MAR 2023 - PRESENT",
+      "bullets": [
+        "Architected and developed modular backend services handling multi-stage workflow engines and financial transaction processing for enterprise clients.",
+        "Designed and implemented RESTful APIs using FastAPI and Django, ensuring secure, scalable, and high-performance backend services.",
+        "Optimized PostgreSQL and MongoDB databases through efficient schema design, indexing, and query tuning, improving overall system performance.",
+        "Collaborated with frontend teams to integrate Flutter and React applications with backend APIs, enabling seamless web and mobile experiences.",
+        "Containerized applications and automated deployments using Docker, enhancing development efficiency and environment consistency.",
+        "Implemented comprehensive unit and integration testing using Pytest, ensuring code quality, reliability, and early detection of regressions."
+      ]
+    },
+    {
+      "company": "StartUp Innovations",
+      "location": "BOSTON, MA, US",
+      "title": "Python Full Stack Developer Intern",
+      "duration": "JUNE 2022 - JAN 2023",
+      "bullets": [
+        "Developed responsive web applications using Django and Flask, adhering to modern UI/UX design principles.",
+        "Built and maintained RESTful APIs using Django REST Framework, enabling efficient client-server communication.",
+        "Enhanced application performance through code refactoring, debugging, and query tuning.",
+        "Implemented automated unit tests with Pytest, improving overall test coverage and ensuring reliable feature releases."
+      ]
+    }
+  ],
+  "professional_projects": [
+    {
+      "name": "Enterprise Management System",
+      "subtitle": "| New York | Remote",
+      "tech_stack": "FastAPI, React, PostgreSQL, Firebase, Google Maps API",
+      "link": null,
+      "bullets": [
+        "Built a full-stack management platform handling end-to-end lifecycle - registration, fee processing, multi-stage tracking, and scheduling.",
+        "Designed and implemented RESTful APIs for domain entities including billing, session reconciliation, and recurring payments.",
+        "Developed interactive dashboards with real-time push notifications via Firebase.",
+        "Implemented role-based access control and built automated reports (PDF/Excel) for financial summaries and operational analytics."
+      ]
+    },
+    {
+      "name": "Logistics Distribution Platform",
+      "subtitle": "| New York | Onsite",
+      "tech_stack": "FastAPI, React, PostgreSQL, Google Maps API",
+      "link": null,
+      "bullets": [
+        "Executed a complete platform migration including codebase refactoring and data migration, ensuring system integrity and data consistency.",
+        "Developed RESTful APIs to integrate a mobile application with the backend for real-time order, delivery, and payment synchronization.",
+        "Implemented Google Maps API integration for vehicle tracking, enabling real-time route visualization and distance calculation."
+      ]
+    }
+  ],
+  "personal_projects": [
+    {
+      "name": "AI Chatbot Platform",
+      "subtitle": "| Personal Project",
+      "tech_stack": null,
+      "link": { "label": "GitHub", "url": "https://github.com/johndoe/ai-chatbot" },
+      "bullets": [
+        "Built a production-ready chatbot platform using FastAPI, React, TypeScript, and PostgreSQL with clean architecture.",
+        "Implemented secure JWT authentication with refresh tokens, role-based access, and session management.",
+        "Designed modular APIs, WebSocket-based streaming, and deployed via Docker Compose for scalable environments."
+      ]
+    },
+    {
+      "name": "Python REST API Framework",
+      "subtitle": "| Open Source",
+      "tech_stack": null,
+      "link": { "label": "GitHub", "url": "https://github.com/johndoe/rest-framework" },
+      "bullets": [
+        "Designed and published a decorator-based REST API framework for Python, enabling a FastAPI-like developer experience.",
+        "Built standardized JSON response handling, automatic serialization, and exception mapping for consistent API behavior.",
+        "Integrated OpenAPI 3.0 specification generation with interactive Swagger UI for automatic API documentation."
+      ]
+    }
+  ],
+  "skills": [
+    { "category": "Backend", "items": "Python (FastAPI, Django, Flask), Node.js (Express.js)" },
+    { "category": "Frontend", "items": "React, TypeScript, Flutter" },
+    { "category": "Databases", "items": "PostgreSQL, MySQL, MongoDB, Redis" },
+    { "category": "Technologies", "items": "Docker, Git, Celery, WebSockets" }
+  ],
+  "education": [
+    {
+      "institution": "STATE UNIVERSITY",
+      "degree": "Bachelor of Computer Science",
+      "duration": "2019 - 2022"
+    }
+  ],
+  "languages": "English - Native  |  Spanish - Professional Working Proficiency"
+}

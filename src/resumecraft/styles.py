@@ -1,0 +1,30 @@
+from docx.shared import Pt, Inches, RGBColor
+
+# Page layout
+TOP_MARGIN = Inches(0.5)
+BOTTOM_MARGIN = Inches(0.5)
+LEFT_MARGIN = Inches(0.6)
+RIGHT_MARGIN = Inches(0.6)
+PAGE_WIDTH = Inches(8.5) - LEFT_MARGIN - RIGHT_MARGIN
+
+# Fonts
+FONT_NAME = "Calibri"
+
+# Font sizes
+NAME_SIZE = Pt(22)
+CONTACT_SIZE = Pt(9.5)
+SECTION_HEADING_SIZE = Pt(12)
+BODY_SIZE = Pt(10)
+COMPANY_SIZE = Pt(10.5)
+TECH_LINE_SIZE = Pt(9.5)
+
+# Colors
+LINK_COLOR = "0046B4"
+TECH_LINE_COLOR = RGBColor(100, 100, 100)
+HEADING_COLOR = RGBColor(0, 0, 0)
+
+# Spacing
+SECTION_SPACE_BEFORE = Pt(8)
+SECTION_SPACE_AFTER = Pt(4)
+BULLET_SPACE = Pt(1)
+JOB_SPACE_BEFORE = Pt(6)
