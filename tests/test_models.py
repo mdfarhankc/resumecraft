@@ -3,7 +3,7 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from resumecraft.models import Contact, Experience, Link, Project, Resume
+from resumecraft.models import Contact, Experience, Link, Project, Resume, DEFAULT_SECTION_ORDER
 
 
 class TestResume:
@@ -23,6 +23,22 @@ class TestResume:
         assert len(full_resume.skills) == 2
         assert len(full_resume.education) == 1
         assert full_resume.languages == "English - Native  |  Spanish - Professional"
+
+    def test_section_order_default_is_none(self, minimal_resume):
+        assert minimal_resume.section_order is None
+
+    def test_custom_section_order(self, minimal_resume):
+        minimal_resume.section_order = ["skills", "summary", "experience"]
+        assert minimal_resume.section_order == ["skills", "summary", "experience"]
+
+    def test_invalid_section_order(self):
+        with pytest.raises(ValidationError):
+            Resume(
+                name="Test",
+                contact=Contact(location="NY", email="a@b.com", phone="123"),
+                summary="Test",
+                section_order=["invalid_section"],
+            )
 
     def test_missing_required_fields(self):
         with pytest.raises(ValidationError) as exc_info:

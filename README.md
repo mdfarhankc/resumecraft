@@ -12,7 +12,10 @@ A Python CLI tool and library that generates professionally formatted `.docx` re
 - **Separate project sections** — Professional projects and personal/open source projects in distinct sections
 - **Tech stack tags** — Italic grey tech stack line under each project
 - **Pydantic validation** — JSON is validated against strict data models before building
+- **Custom section ordering** — Control which sections appear and in what order
+- **Watch mode** — Auto-rebuild on file save
 - **PDF output** — Optional PDF conversion via `docx2pdf`
+- **Auto-open** — Open the generated file after building with `--open`
 
 ## Installation
 
@@ -22,10 +25,12 @@ A Python CLI tool and library that generates professionally formatted `.docx` re
 pip install resumecraft
 ```
 
-With PDF support:
+With optional extras:
 
 ```bash
-pip install resumecraft[pdf]
+pip install resumecraft[pdf]       # PDF output support
+pip install resumecraft[watch]     # Watch mode support
+pip install resumecraft[pdf,watch] # Both
 ```
 
 ### As a CLI tool (recommended)
@@ -45,21 +50,30 @@ resumecraft init -o my-resume.json
 # 2. Edit my-resume.json with your details
 
 # 3. Build your resume
-resumecraft build my-resume.json -o resume.docx
+resumecraft build my-resume.json
 
-# 4. Validate without building
+# 4. Build and open immediately
+resumecraft build my-resume.json --open
+
+# 5. Validate without building
 resumecraft validate my-resume.json
+
+# 6. Watch for changes and rebuild automatically
+resumecraft watch my-resume.json -o resume.docx
 ```
 
 ## CLI Reference
 
 ```
-resumecraft --help              Show all commands
-resumecraft --version           Show version
-resumecraft init -o FILE        Generate a blank JSON template
-resumecraft build FILE -o FILE  Build .docx (or .pdf) from JSON
-resumecraft validate FILE       Validate JSON without building
+resumecraft --help                      Show all commands
+resumecraft --version                   Show version
+resumecraft init -o FILE                Generate a blank JSON template
+resumecraft build FILE [-o FILE] [--open]  Build .docx (or .pdf) from JSON
+resumecraft validate FILE               Validate JSON without building
+resumecraft watch FILE [-o FILE]        Watch and rebuild on file changes
 ```
+
+When `-o` is omitted from `build`, the output file is automatically named with a timestamp, e.g., `resume_2026-04-01_03-45pm.docx`.
 
 ## Use as a Library
 
@@ -152,7 +166,16 @@ Run `resumecraft init` to generate a full template. Here's the structure:
       "duration": "2019 - 2023"
     }
   ],
-  "languages": "English - Native  |  Hindi - Professional"
+  "languages": "English - Native  |  Hindi - Professional",
+  "section_order": [
+    "summary",
+    "experience",
+    "professional_projects",
+    "personal_projects",
+    "skills",
+    "education",
+    "languages"
+  ]
 }
 ```
 
@@ -170,6 +193,11 @@ Run `resumecraft init` to generate a full template. Here's the structure:
 | `skills` | object[] | No | Categorized skill lists |
 | `education` | object[] | No | Degrees and institutions |
 | `languages` | string | No | Language proficiencies |
+| `section_order` | string[] | No | Custom order of sections (omit for default). Only listed sections are rendered. |
+
+### Available sections for `section_order`
+
+`summary`, `experience`, `professional_projects`, `personal_projects`, `skills`, `education`, `languages`
 
 ## Project Structure
 
@@ -179,8 +207,8 @@ resumecraft/
 ├── README.md
 ├── LICENSE
 ├── src/resumecraft/
-│   ├── __init__.py        # Public API (Resume, DocxBuilder)
-│   ├── cli.py             # Typer CLI commands (build, validate, init)
+│   ├── __init__.py        # Public API (Resume, DocxBuilder, __version__)
+│   ├── cli.py             # Typer CLI commands (build, validate, init, watch)
 │   ├── models.py          # Pydantic data models
 │   ├── builder.py         # DocxBuilder — converts models to .docx
 │   ├── styles.py          # Styling constants (fonts, sizes, colors, margins)
@@ -218,11 +246,7 @@ This creates `dist/resumecraft-x.x.x.tar.gz` and `dist/resumecraft-x.x.x-py3-non
 
 ### Publish to PyPI
 
-```bash
-uv publish
-```
-
-You'll need a [PyPI API token](https://pypi.org/manage/account/token/).
+Create a GitHub release (e.g., `v0.2.0`) and the CI workflow will publish to PyPI automatically via trusted publishing.
 
 ## License
 

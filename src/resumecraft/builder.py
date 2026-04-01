@@ -5,7 +5,7 @@ from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT
 from docx.shared import Pt
 
-from resumecraft.models import Education, Experience, Project, Resume, Skill
+from resumecraft.models import DEFAULT_SECTION_ORDER, Education, Experience, Project, Resume, Skill
 from resumecraft.styles import (
     BODY_SIZE,
     BOTTOM_MARGIN,
@@ -238,13 +238,25 @@ class DocxBuilder:
 
     def build(self) -> Document:
         self._build_header()
-        self._build_summary()
-        self._build_experience()
-        self._build_projects(self.resume.professional_projects, "PROFESSIONAL PROJECTS")
-        self._build_projects(self.resume.personal_projects, "PERSONAL & OPEN SOURCE PROJECTS")
-        self._build_skills()
-        self._build_education()
-        self._build_languages()
+
+        section_builders = {
+            "summary": self._build_summary,
+            "experience": self._build_experience,
+            "professional_projects": lambda: self._build_projects(
+                self.resume.professional_projects, "PROFESSIONAL PROJECTS"
+            ),
+            "personal_projects": lambda: self._build_projects(
+                self.resume.personal_projects, "PERSONAL & OPEN SOURCE PROJECTS"
+            ),
+            "skills": self._build_skills,
+            "education": self._build_education,
+            "languages": self._build_languages,
+        }
+
+        order = self.resume.section_order or DEFAULT_SECTION_ORDER
+        for section in order:
+            section_builders[section]()
+
         return self.doc
 
     def save(self, output_path: str | Path) -> Path:

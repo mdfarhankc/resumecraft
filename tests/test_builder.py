@@ -81,3 +81,27 @@ class TestDocxBuilder:
         output = tmp_path / "sample.docx"
         DocxBuilder(resume).save(output)
         assert output.exists()
+
+    def test_custom_section_order(self, full_resume):
+        full_resume.section_order = ["skills", "experience", "summary"]
+        builder = DocxBuilder(full_resume)
+        doc = builder.build()
+        text = "\n".join(p.text for p in doc.paragraphs)
+        skills_pos = text.index("SKILLS")
+        exp_pos = text.index("WORK EXPERIENCE")
+        summary_pos = text.index("PROFESSIONAL SUMMARY")
+        assert skills_pos < exp_pos < summary_pos
+        # Sections not in order should be absent
+        assert "EDUCATION" not in text
+        assert "LANGUAGES" not in text
+
+    def test_default_section_order(self, full_resume):
+        # When section_order is None, all sections render in default order
+        full_resume.section_order = None
+        builder = DocxBuilder(full_resume)
+        doc = builder.build()
+        text = "\n".join(p.text for p in doc.paragraphs)
+        summary_pos = text.index("PROFESSIONAL SUMMARY")
+        exp_pos = text.index("WORK EXPERIENCE")
+        skills_pos = text.index("SKILLS")
+        assert summary_pos < exp_pos < skills_pos

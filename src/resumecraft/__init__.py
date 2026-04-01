@@ -1,4 +1,7 @@
-from resumecraft.models import Resume
-from resumecraft.builder import DocxBuilder
+from importlib.metadata import version
 
-__all__ = ["Resume", "DocxBuilder"]
+from resumecraft.builder import DocxBuilder
+from resumecraft.models import Resume
+
+__version__ = version("resumecraft")
+__all__ = ["Resume", "DocxBuilder", "__version__"]

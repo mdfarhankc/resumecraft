@@ -1,5 +1,8 @@
 import json
-from importlib.metadata import version as pkg_version
+import platform
+import subprocess
+from datetime import datetime
+from resumecraft import __version__
 from pathlib import Path
 
 import typer
@@ -11,7 +14,7 @@ from resumecraft.models import Resume
 
 def _version_callback(value: bool) -> None:
     if value:
-        typer.echo(f"resumecraft {pkg_version('resumecraft')}")
+        typer.echo(f"resumecraft {__version__}")
         raise typer.Exit()
 
 
@@ -72,15 +75,32 @@ def _convert_to_pdf(docx_path: Path, pdf_path: Path) -> Path:
     return pdf_path
 
 
+def _open_file(path: Path) -> None:
+    """Open a file with the system's default application."""
+    system = platform.system()
+    if system == "Windows":
+        subprocess.Popen(["start", "", str(path)], shell=True)
+    elif system == "Darwin":
+        subprocess.Popen(["open", str(path)])
+    else:
+        subprocess.Popen(["xdg-open", str(path)])
+
+
 @app.command(no_args_is_help=True)
 def build(
     input_file: Path = typer.Argument(...,
                                       help="Path to the resume JSON file."),
     output: Path = typer.Option(
-        "output/resume.docx", "-o", "--output",
-        help="Output file path (.docx or .pdf)."),
+        None, "-o", "--output",
+        help="Output file path (.docx or .pdf). Defaults to resume_YYYY-MM-DD_HH-MMam/pm.docx"),
+    open_file: bool = typer.Option(
+        False, "--open", help="Open the file after building."),
 ) -> None:
     """Build a .docx resume from a JSON file."""
+    if output is None:
+        timestamp = datetime.now().strftime("%Y-%m-%d_%I-%M%p").lower()
+        output = Path(f"resume_{timestamp}.docx")
+
     resume = _load_resume(input_file)
     builder = DocxBuilder(resume)
 
@@ -93,6 +113,9 @@ def build(
     else:
         saved = builder.save(output)
         typer.echo(f"Resume saved to {saved}")
+
+    if open_file:
+        _open_file(output)
 
 
 @app.command(no_args_is_help=True)
@@ -168,11 +191,66 @@ def init(
             }
         ],
         "languages": "English - Native  |  Spanish - Professional Working Proficiency",
+        "section_order": [
+            "summary",
+            "experience",
+            "professional_projects",
+            "personal_projects",
+            "skills",
+            "education",
+            "languages",
+        ],
     }
 
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(template, indent=2, ensure_ascii=False), encoding="utf-8")
     typer.echo(f"Template saved to {output}")
+
+
+@app.command(no_args_is_help=True)
+def watch(
+    input_file: Path = typer.Argument(...,
+                                      help="Path to the resume JSON file."),
+    output: Path = typer.Option(
+        "resume.docx", "-o", "--output",
+        help="Output file path (.docx or .pdf)."),
+) -> None:
+    """Watch a JSON file and rebuild on every save."""
+    try:
+        from watchfiles import watch as watch_files
+    except ImportError:
+        typer.echo(
+            "Error: Watch mode requires 'watchfiles'. Install it with:",
+            err=True,
+        )
+        typer.echo("  pip install resumecraft[watch]", err=True)
+        raise typer.Exit(1)
+
+    if not input_file.exists():
+        typer.echo(f"Error: {input_file} not found.", err=True)
+        raise typer.Exit(1)
+
+    def _rebuild() -> None:
+        try:
+            resume = _load_resume(input_file)
+            builder = DocxBuilder(resume)
+            if output.suffix.lower() == ".pdf":
+                docx_tmp = output.with_suffix(".docx")
+                builder.save(docx_tmp)
+                _convert_to_pdf(docx_tmp, output)
+                docx_tmp.unlink()
+            else:
+                builder.save(output)
+            timestamp = datetime.now().strftime("%I:%M:%S %p").lower()
+            typer.echo(f"[{timestamp}] Rebuilt -> {output}")
+        except SystemExit:
+            pass
+
+    typer.echo(f"Watching {input_file} for changes... (Ctrl+C to stop)")
+    _rebuild()
+
+    for _ in watch_files(input_file.parent, watch_filter=lambda _, path: Path(path).name == input_file.name):
+        _rebuild()
 
 
 if __name__ == "__main__":

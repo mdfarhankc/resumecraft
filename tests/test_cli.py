@@ -1,4 +1,5 @@
 import json
+import re
 
 from typer.testing import CliRunner
 
@@ -26,6 +27,16 @@ class TestBuild:
         assert result.exit_code == 0
         assert "Resume saved to" in result.output
         assert output.exists()
+
+    def test_build_default_output_has_timestamp(self, sample_json_path, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        result = runner.invoke(app, ["build", str(sample_json_path)])
+        assert result.exit_code == 0
+        assert "Resume saved to" in result.output
+        # Should match resume_YYYY-MM-DD_HH-MMam/pm.docx
+        files = list(tmp_path.glob("resume_*.docx"))
+        assert len(files) == 1
+        assert re.match(r"resume_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}(am|pm)\.docx", files[0].name)
 
     def test_build_file_not_found(self):
         result = runner.invoke(app, ["build", "nonexistent.json"])

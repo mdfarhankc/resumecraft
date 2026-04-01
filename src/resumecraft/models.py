@@ -1,4 +1,28 @@
+from typing import Literal
+
 from pydantic import BaseModel
+
+VALID_SECTIONS = (
+    "summary",
+    "experience",
+    "professional_projects",
+    "personal_projects",
+    "skills",
+    "education",
+    "languages",
+)
+
+SectionName = Literal[
+    "summary",
+    "experience",
+    "professional_projects",
+    "personal_projects",
+    "skills",
+    "education",
+    "languages",
+]
+
+DEFAULT_SECTION_ORDER: list[SectionName] = list(VALID_SECTIONS)
 
 
 class Link(BaseModel):
@@ -51,6 +75,7 @@ class Resume(BaseModel):
     skills: list[Skill] = []
     education: list[Education] = []
     languages: str = ""
+    section_order: list[SectionName] | None = None
 
     @classmethod
     def from_json(cls, path: str) -> "Resume":
