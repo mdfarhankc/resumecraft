@@ -100,6 +100,11 @@ class ResumeCraft:
                 }
             ],
             "languages": "English - Native  |  Spanish - Professional",
+            "style": {
+                "font": "calibri",
+                "color": "black",
+                "spacing": "normal",
+            },
             "section_order": [
                 "summary",
                 "experience",

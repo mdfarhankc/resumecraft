@@ -5,6 +5,10 @@
 - Add `ResumeCraft` class — simple high-level API with `from_json()`, `to_docx()`, and `to_bytes()`
 - Make CLI optional — `typer` moved to `[cli]` extra, core library only needs `python-docx` + `pydantic`
 - Add `[all]` extra for installing everything (`cli` + `pdf` + `watch`)
+- Add unified `projects` section as alternative to split professional/personal
+- Add style options: 7 fonts, 6 color themes, 3 spacing presets
+- Add `json_schema()`, `to_dict()`, `sample()`, and `__repr__` to ResumeCraft
+- Accept JSON strings directly in ResumeCraft constructor
 - Add FastAPI and Flask usage examples in README
 
 ## v0.2.0

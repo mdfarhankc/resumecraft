@@ -4,15 +4,13 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.text.paragraph import Paragraph
 
-from resumecraft.styles import FONT_NAME, LINK_COLOR
-
 
 def keep_with_next(paragraph: Paragraph) -> None:
     pPr = paragraph._p.get_or_add_pPr()
     pPr.append(OxmlElement("w:keepNext"))
 
 
-def add_hyperlink(paragraph: Paragraph, text: str, url: str) -> None:
+def add_hyperlink(paragraph: Paragraph, text: str, url: str, link_color: str = "0046B4", font_name: str = "Calibri") -> None:
     part = paragraph.part
     r_id = part.relate_to(
         url,
@@ -27,7 +25,7 @@ def add_hyperlink(paragraph: Paragraph, text: str, url: str) -> None:
     rPr = OxmlElement("w:rPr")
 
     color = OxmlElement("w:color")
-    color.set(qn("w:val"), LINK_COLOR)
+    color.set(qn("w:val"), link_color)
     rPr.append(color)
 
     underline = OxmlElement("w:u")
@@ -39,8 +37,8 @@ def add_hyperlink(paragraph: Paragraph, text: str, url: str) -> None:
     rPr.append(size)
 
     fonts = OxmlElement("w:rFonts")
-    fonts.set(qn("w:ascii"), FONT_NAME)
-    fonts.set(qn("w:hAnsi"), FONT_NAME)
+    fonts.set(qn("w:ascii"), font_name)
+    fonts.set(qn("w:hAnsi"), font_name)
     rPr.append(fonts)
 
     new_run.append(rPr)

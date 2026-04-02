@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from resumecraft.builder import DocxBuilder
+from resumecraft.models import StyleOptions
 
 
 class TestDocxBuilder:
@@ -105,3 +106,46 @@ class TestDocxBuilder:
         exp_pos = text.index("WORK EXPERIENCE")
         skills_pos = text.index("SKILLS")
         assert summary_pos < exp_pos < skills_pos
+
+    def test_style_font(self, minimal_resume, tmp_path):
+        minimal_resume.style = StyleOptions(font="georgia")
+        builder = DocxBuilder(minimal_resume)
+        builder.build()
+        assert builder.doc.styles["Normal"].font.name == "Georgia"
+
+    def test_style_color(self, minimal_resume):
+        minimal_resume.style = StyleOptions(color="navy")
+        builder = DocxBuilder(minimal_resume)
+        doc = builder.build()
+        # Check heading color is navy (0, 32, 96)
+        from docx.shared import RGBColor
+        for p in doc.paragraphs:
+            for run in p.runs:
+                if run.text == "PROFESSIONAL SUMMARY":
+                    assert run.font.color.rgb == RGBColor(0, 32, 96)
+
+    def test_style_spacing_compact(self, full_resume, tmp_path):
+        full_resume.style = StyleOptions(spacing="compact")
+        output = tmp_path / "compact.docx"
+        DocxBuilder(full_resume).save(output)
+        assert output.exists()
+
+    def test_style_spacing_relaxed(self, full_resume, tmp_path):
+        full_resume.style = StyleOptions(spacing="relaxed")
+        output = tmp_path / "relaxed.docx"
+        DocxBuilder(full_resume).save(output)
+        assert output.exists()
+
+    def test_all_fonts_build(self, minimal_resume, tmp_path):
+        for font in ["calibri", "arial", "times", "garamond", "georgia", "helvetica", "cambria"]:
+            minimal_resume.style = StyleOptions(font=font)
+            output = tmp_path / f"{font}.docx"
+            DocxBuilder(minimal_resume).save(output)
+            assert output.exists()
+
+    def test_all_colors_build(self, minimal_resume, tmp_path):
+        for color in ["black", "navy", "forest", "maroon", "slate", "royal"]:
+            minimal_resume.style = StyleOptions(color=color)
+            output = tmp_path / f"{color}.docx"
+            DocxBuilder(minimal_resume).save(output)
+            assert output.exists()

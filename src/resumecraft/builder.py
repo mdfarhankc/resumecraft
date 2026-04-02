@@ -9,22 +9,16 @@ from resumecraft.models import DEFAULT_SECTION_ORDER, Education, Experience, Pro
 from resumecraft.styles import (
     BODY_SIZE,
     BOTTOM_MARGIN,
-    BULLET_SPACE,
     COMPANY_SIZE,
     CONTACT_SIZE,
-    FONT_NAME,
-    HEADING_COLOR,
-    JOB_SPACE_BEFORE,
     LEFT_MARGIN,
     NAME_SIZE,
     PAGE_WIDTH,
     RIGHT_MARGIN,
     SECTION_HEADING_SIZE,
-    SECTION_SPACE_AFTER,
-    SECTION_SPACE_BEFORE,
-    TECH_LINE_COLOR,
     TECH_LINE_SIZE,
     TOP_MARGIN,
+    resolve_style,
 )
 from resumecraft.utils import (
     add_bottom_border,
@@ -39,6 +33,7 @@ class DocxBuilder:
         self.resume = resume
         self.doc = Document()
         self._bold_pattern = build_bold_pattern(resume.bold_keywords)
+        self._style = resolve_style(resume.style)
         self._setup_document()
 
     def _setup_document(self) -> None:
@@ -49,7 +44,7 @@ class DocxBuilder:
             section.right_margin = RIGHT_MARGIN
 
         style = self.doc.styles["Normal"]
-        style.font.name = FONT_NAME
+        style.font.name = self._style["font_name"]
         style.font.size = Pt(10.5)
 
     def _run(self, paragraph, text: str, bold=False, italic=False, size=None, font=None):
@@ -57,20 +52,20 @@ class DocxBuilder:
         run.bold = bold
         run.italic = italic
         run.font.size = size or BODY_SIZE
-        run.font.name = font or FONT_NAME
+        run.font.name = font or self._style["font_name"]
         return run
 
     # ── Section builders ──────────────────────────────────────
 
     def _add_section_heading(self, text: str):
         p = self.doc.add_paragraph()
-        p.paragraph_format.space_before = SECTION_SPACE_BEFORE
-        p.paragraph_format.space_after = SECTION_SPACE_AFTER
+        p.paragraph_format.space_before = self._style["section_space_before"]
+        p.paragraph_format.space_after = self._style["section_space_after"]
         run = p.add_run(text)
         run.bold = True
         run.font.size = SECTION_HEADING_SIZE
-        run.font.name = FONT_NAME
-        run.font.color.rgb = HEADING_COLOR
+        run.font.name = self._style["font_name"]
+        run.font.color.rgb = self._style["heading_color"]
         add_bottom_border(p)
         keep_with_next(p)
         return p
@@ -92,8 +87,8 @@ class DocxBuilder:
 
     def _add_rich_bullet(self, text: str):
         p = self.doc.add_paragraph(style="List Bullet")
-        p.paragraph_format.space_after = BULLET_SPACE
-        p.paragraph_format.space_before = BULLET_SPACE
+        p.paragraph_format.space_after = self._style["bullet_space"]
+        p.paragraph_format.space_before = self._style["bullet_space"]
 
         if self._bold_pattern:
             parts = self._bold_pattern.split(text)
@@ -103,7 +98,7 @@ class DocxBuilder:
                     continue
                 run = p.add_run(part)
                 run.font.size = BODY_SIZE
-                run.font.name = FONT_NAME
+                run.font.name = self._style["font_name"]
                 if part in keywords_set:
                     run.bold = True
         else:
@@ -113,7 +108,7 @@ class DocxBuilder:
 
     def _add_project_header(self, name: str, subtitle: str):
         p = self.doc.add_paragraph()
-        p.paragraph_format.space_before = JOB_SPACE_BEFORE
+        p.paragraph_format.space_before = self._style["job_space_before"]
         p.paragraph_format.space_after = Pt(2)
         self._run(p, name, bold=True, size=COMPANY_SIZE)
         self._run(p, f"    {subtitle}", size=BODY_SIZE)
@@ -126,15 +121,15 @@ class DocxBuilder:
         run = p.add_run(text)
         run.italic = True
         run.font.size = TECH_LINE_SIZE
-        run.font.name = FONT_NAME
-        run.font.color.rgb = TECH_LINE_COLOR
+        run.font.name = self._style["font_name"]
+        run.font.color.rgb = self._style["tech_line_color"]
         keep_with_next(p)
 
     def _add_link_line(self, label: str, url: str):
         p = self.doc.add_paragraph()
         p.paragraph_format.space_after = Pt(2)
         self._run(p, label, size=TECH_LINE_SIZE)
-        add_hyperlink(p, url, url)
+        add_hyperlink(p, url, url, self._style["link_color"], self._style["font_name"])
         keep_with_next(p)
 
     # ── Top-level section renderers ───────────────────────────
@@ -156,12 +151,12 @@ class DocxBuilder:
 
         contact = resume.contact
         self._run(p, f"{contact.location}  |  ", size=CONTACT_SIZE)
-        add_hyperlink(p, contact.email, f"mailto:{contact.email}")
+        add_hyperlink(p, contact.email, f"mailto:{contact.email}", self._style["link_color"], self._style["font_name"])
         self._run(p, f"  |  {contact.phone}", size=CONTACT_SIZE)
 
         for link in contact.links:
             self._run(p, "  |  ", size=CONTACT_SIZE)
-            add_hyperlink(p, link.label, link.url)
+            add_hyperlink(p, link.label, link.url, self._style["link_color"], self._style["font_name"])
 
     def _build_summary(self) -> None:
         self._add_section_heading("PROFESSIONAL SUMMARY")
@@ -177,7 +172,7 @@ class DocxBuilder:
 
         for i, exp in enumerate(self.resume.experience):
             p = self._add_two_column_line(exp.company, exp.location)
-            p.paragraph_format.space_before = JOB_SPACE_BEFORE if i == 0 else Pt(8)
+            p.paragraph_format.space_before = self._style["job_space_before"] if i == 0 else Pt(8)
             self._add_two_column_line(
                 exp.title, exp.duration, left_bold=False, left_italic=True, left_size=BODY_SIZE
             )

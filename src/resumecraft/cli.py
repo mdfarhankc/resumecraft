@@ -197,6 +197,11 @@ def init(
             }
         ],
         "languages": "English - Native  |  Spanish - Professional Working Proficiency",
+        "style": {
+            "font": "calibri",
+            "color": "black",
+            "spacing": "normal",
+        },
         "section_order": [
             "summary",
             "experience",

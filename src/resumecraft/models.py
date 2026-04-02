@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 VALID_SECTIONS = (
     "summary",
@@ -25,6 +25,17 @@ SectionName = Literal[
 ]
 
 DEFAULT_SECTION_ORDER: list[SectionName] = list(VALID_SECTIONS)
+
+
+FontName = Literal["calibri", "arial", "times", "garamond", "georgia", "helvetica", "cambria"]
+ColorTheme = Literal["black", "navy", "forest", "maroon", "slate", "royal"]
+SpacingPreset = Literal["compact", "normal", "relaxed"]
+
+
+class StyleOptions(BaseModel):
+    font: FontName = "calibri"
+    color: ColorTheme = "black"
+    spacing: SpacingPreset = "normal"
 
 
 class Link(BaseModel):
@@ -79,6 +90,7 @@ class Resume(BaseModel):
     education: list[Education] = []
     languages: str = ""
     section_order: list[SectionName] | None = None
+    style: StyleOptions = StyleOptions()
 
     @classmethod
     def from_json(cls, path: str) -> "Resume":

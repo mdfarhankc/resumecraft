@@ -219,6 +219,11 @@ Run `resumecraft init` to generate a full template. Here's the structure:
     }
   ],
   "languages": "English - Native  |  Hindi - Professional",
+  "style": {
+    "font": "calibri",
+    "color": "black",
+    "spacing": "normal"
+  },
   "section_order": [
     "summary",
     "experience",
@@ -247,6 +252,27 @@ Run `resumecraft init` to generate a full template. Here's the structure:
 | `education` | object[] | No | Degrees and institutions |
 | `languages` | string | No | Language proficiencies |
 | `section_order` | string[] | No | Custom order of sections (omit for default). Only listed sections are rendered. |
+| `style` | object | No | Styling options (font, color, spacing) |
+
+### Style Options
+
+Add a `style` object to customize the look of your resume:
+
+```json
+{
+  "style": {
+    "font": "garamond",
+    "color": "navy",
+    "spacing": "compact"
+  }
+}
+```
+
+| Option | Choices | Default |
+|--------|---------|---------|
+| `font` | `calibri`, `arial`, `times`, `garamond`, `georgia`, `helvetica`, `cambria` | `calibri` |
+| `color` | `black`, `navy`, `forest`, `maroon`, `slate`, `royal` | `black` |
+| `spacing` | `compact`, `normal`, `relaxed` | `normal` |
 
 ### Available sections for `section_order`
 
