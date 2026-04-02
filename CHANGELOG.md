@@ -9,7 +9,8 @@
 - Add style options: 7 fonts, 6 color themes, 3 spacing presets
 - Add `json_schema()`, `to_dict()`, `sample()`, and `__repr__` to ResumeCraft
 - Accept JSON strings directly in ResumeCraft constructor
-- Add FastAPI and Flask usage examples in README
+- Add `to_pdf()` for PDF export from library code
+- Add `examples/` folder with FastAPI, Flask, Django, and basic usage examples
 
 ## v0.2.0
 
