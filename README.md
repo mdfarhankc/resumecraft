@@ -93,6 +93,9 @@ rc = ResumeCraft('{"name": "John Doe", ...}')
 # Get bytes (for web frameworks)
 content = rc.to_bytes()
 
+# Export as PDF (requires: pip install resumecraft[pdf])
+rc.to_pdf("resume.pdf")
+
 # Export back to dict
 data = rc.to_dict()
 
@@ -107,39 +110,55 @@ schema = ResumeCraft.json_schema()
 
 ```python
 import io
+import tempfile
 from fastapi import FastAPI
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from resumecraft import ResumeCraft
 
 app = FastAPI()
 
-@app.post("/resume")
-def generate(data: dict):
+@app.post("/resume/docx")
+def generate_docx(data: dict):
     rc = ResumeCraft(data)
     return StreamingResponse(
         io.BytesIO(rc.to_bytes()),
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         headers={"Content-Disposition": "attachment; filename=resume.docx"},
     )
+
+@app.post("/resume/pdf")
+def generate_pdf(data: dict):
+    rc = ResumeCraft(data)
+    tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
+    rc.to_pdf(tmp.name)
+    return FileResponse(tmp.name, filename="resume.pdf", media_type="application/pdf")
 ```
 
 ### Flask example
 
 ```python
+import io
+import tempfile
 from flask import Flask, request, send_file
 from resumecraft import ResumeCraft
-import io
 
 app = Flask(__name__)
 
-@app.post("/resume")
-def generate():
+@app.post("/resume/docx")
+def generate_docx():
     rc = ResumeCraft(request.json)
     return send_file(
         io.BytesIO(rc.to_bytes()),
         mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         download_name="resume.docx",
     )
+
+@app.post("/resume/pdf")
+def generate_pdf():
+    rc = ResumeCraft(request.json)
+    tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
+    rc.to_pdf(tmp.name)
+    return send_file(tmp.name, mimetype="application/pdf", download_name="resume.pdf")
 ```
 
 ### Advanced usage

@@ -129,6 +129,34 @@ class ResumeCraft:
         builder = DocxBuilder(self.resume)
         return builder.save(path)
 
+    def to_pdf(self, path: str | Path) -> Path:
+        """Build and save a PDF file. Returns the output Path.
+
+        Requires docx2pdf: pip install resumecraft[pdf]
+        """
+        try:
+            from docx2pdf import convert
+        except ImportError:
+            raise ImportError(
+                "PDF export requires 'docx2pdf'. Install it with: pip install resumecraft[pdf]"
+            ) from None
+
+        import tempfile
+
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        with tempfile.NamedTemporaryFile(suffix=".docx", delete=False) as tmp:
+            tmp_path = Path(tmp.name)
+
+        try:
+            self.to_docx(tmp_path)
+            convert(str(tmp_path), str(path))
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+        return path
+
     def to_bytes(self) -> bytes:
         """Build the .docx in memory and return raw bytes.
 
