@@ -257,6 +257,8 @@ def watch(
             typer.echo(f"[{timestamp}] Rebuilt -> {output}")
         except SystemExit:
             pass
+        except PermissionError:
+            typer.echo(f"Error: {output} is locked (close it in Word/another app).", err=True)
 
     typer.echo(f"Watching {input_file} for changes... (Ctrl+C to stop)")
     _rebuild()
