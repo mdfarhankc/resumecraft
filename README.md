@@ -161,6 +161,8 @@ def generate_pdf():
     return send_file(tmp.name, mimetype="application/pdf", download_name="resume.pdf")
 ```
 
+See the [examples/](examples/) folder for more complete examples including Django.
+
 ### Advanced usage
 
 You can also use the lower-level `Resume` and `DocxBuilder` classes directly:
@@ -306,6 +308,13 @@ resumecraft/
 ├── pyproject.toml
 ├── README.md
 ├── LICENSE
+├── examples/
+│   ├── basic.py            # Simple usage
+│   ├── from_json.py        # Build from JSON file
+│   ├── styled.py           # Custom fonts, colors, spacing
+│   ├── fastapi_app.py      # FastAPI REST API
+│   ├── flask_app.py        # Flask REST API
+│   └── django_view.py      # Django views
 ├── src/resumecraft/
 │   ├── __init__.py        # Public API (ResumeCraft, Resume, DocxBuilder)
 │   ├── craft.py           # ResumeCraft facade (simple high-level API)
