@@ -25,7 +25,7 @@ def _version_callback(value: bool) -> None:
 
 app = typer.Typer(
     name="resumecraft",
-    help="Generate professionally formatted .docx resumes from JSON data.",
+    help="Generate professional resumes from JSON with DOCX/PDF export, custom styling, and web framework support.",
     invoke_without_command=True,
     no_args_is_help=True,
 )
@@ -38,7 +38,7 @@ def main(
         callback=_version_callback, is_eager=True,
     ),
 ) -> None:
-    """Generate professionally formatted .docx resumes from JSON data."""
+    """Generate professional resumes from JSON with DOCX/PDF export, custom styling, and web framework support."""
 
 
 def _load_resume(path: Path) -> Resume:

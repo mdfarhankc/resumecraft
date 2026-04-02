@@ -1,7 +1,7 @@
 [project]
 name = "resumecraft"
 version = "0.3.0"
-description = "Generate professionally formatted .docx resumes from JSON data."
+description = "Generate professional resumes from JSON with DOCX/PDF export, custom styling, and web framework support."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"

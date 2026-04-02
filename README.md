@@ -1,8 +1,8 @@
 # ResumeCraft
 
-A Python library and CLI tool that generates professionally formatted `.docx` resumes from JSON data. Define your resume content in a simple JSON file and get a polished Word document with proper formatting — right-aligned dates, bold keyword highlighting, clickable hyperlinks, and clean page breaks.
+Generate professional resumes from JSON with DOCX/PDF export, custom styling, and web framework support.
 
-Use it standalone, as a CLI tool, or integrate it into your web app (FastAPI, Django, Flask, etc.).
+Use it as a Python library, CLI tool, or integrate into your web app (FastAPI, Django, Flask, etc.).
 
 ## Features
 
