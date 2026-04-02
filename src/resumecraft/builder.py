@@ -242,6 +242,9 @@ class DocxBuilder:
         section_builders = {
             "summary": self._build_summary,
             "experience": self._build_experience,
+            "projects": lambda: self._build_projects(
+                self.resume.projects, "PROJECTS"
+            ),
             "professional_projects": lambda: self._build_projects(
                 self.resume.professional_projects, "PROFESSIONAL PROJECTS"
             ),

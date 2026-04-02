@@ -165,6 +165,7 @@ def init(
                 ],
             }
         ],
+        "projects": [],
         "professional_projects": [
             {
                 "name": "Project Name",
@@ -199,6 +200,7 @@ def init(
         "section_order": [
             "summary",
             "experience",
+            "projects",
             "professional_projects",
             "personal_projects",
             "skills",

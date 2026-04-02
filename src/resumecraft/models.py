@@ -5,6 +5,7 @@ from pydantic import BaseModel
 VALID_SECTIONS = (
     "summary",
     "experience",
+    "projects",
     "professional_projects",
     "personal_projects",
     "skills",
@@ -15,6 +16,7 @@ VALID_SECTIONS = (
 SectionName = Literal[
     "summary",
     "experience",
+    "projects",
     "professional_projects",
     "personal_projects",
     "skills",
@@ -70,6 +72,7 @@ class Resume(BaseModel):
     summary: str
     bold_keywords: list[str] = []
     experience: list[Experience] = []
+    projects: list[Project] = []
     professional_projects: list[Project] = []
     personal_projects: list[Project] = []
     skills: list[Skill] = []

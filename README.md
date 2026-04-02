@@ -87,8 +87,20 @@ rc.to_docx("resume.docx")
 rc = ResumeCraft({"name": "John Doe", "contact": {...}, "summary": "..."})
 rc.to_docx("resume.docx")
 
+# From a JSON string
+rc = ResumeCraft('{"name": "John Doe", ...}')
+
 # Get bytes (for web frameworks)
 content = rc.to_bytes()
+
+# Export back to dict
+data = rc.to_dict()
+
+# Get a sample template to see all fields
+sample = ResumeCraft.sample()
+
+# Get JSON schema for editor validation
+schema = ResumeCraft.json_schema()
 ```
 
 ### FastAPI example
@@ -168,6 +180,15 @@ Run `resumecraft init` to generate a full template. Here's the structure:
       "bullets": ["What you did and the impact it had."]
     }
   ],
+  "projects": [
+    {
+      "name": "Project Name",
+      "subtitle": "| Description",
+      "tech_stack": "Python, FastAPI",
+      "link": null,
+      "bullets": ["What you built."]
+    }
+  ],
   "professional_projects": [
     {
       "name": "Project Name",
@@ -219,7 +240,8 @@ Run `resumecraft init` to generate a full template. Here's the structure:
 | `summary` | string | Yes | Professional summary paragraph |
 | `bold_keywords` | string[] | No | Words to auto-bold in all bullet points |
 | `experience` | object[] | No | Work experience entries |
-| `professional_projects` | object[] | No | Client/employer projects |
+| `projects` | object[] | No | Single unified projects section |
+| `professional_projects` | object[] | No | Client/employer projects (use with `personal_projects` for split sections) |
 | `personal_projects` | object[] | No | Side projects and open source work |
 | `skills` | object[] | No | Categorized skill lists |
 | `education` | object[] | No | Degrees and institutions |
@@ -228,7 +250,9 @@ Run `resumecraft init` to generate a full template. Here's the structure:
 
 ### Available sections for `section_order`
 
-`summary`, `experience`, `professional_projects`, `personal_projects`, `skills`, `education`, `languages`
+`summary`, `experience`, `projects`, `professional_projects`, `personal_projects`, `skills`, `education`, `languages`
+
+> **Note:** Use either `projects` for a single section, or `professional_projects` + `personal_projects` for two separate sections. If you use `projects`, include it in `section_order` — it's not part of the default order.
 
 ## Project Structure
 
