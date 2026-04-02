@@ -1,6 +1,8 @@
 # ResumeCraft
 
-A Python CLI tool and library that generates professionally formatted `.docx` resumes from JSON data. Define your resume content in a simple JSON file and get a polished Word document with proper formatting — right-aligned dates, bold keyword highlighting, clickable hyperlinks, and clean page breaks.
+A Python library and CLI tool that generates professionally formatted `.docx` resumes from JSON data. Define your resume content in a simple JSON file and get a polished Word document with proper formatting — right-aligned dates, bold keyword highlighting, clickable hyperlinks, and clean page breaks.
+
+Use it standalone, as a CLI tool, or integrate it into your web app (FastAPI, Django, Flask, etc.).
 
 ## Features
 
@@ -19,26 +21,23 @@ A Python CLI tool and library that generates professionally formatted `.docx` re
 
 ## Installation
 
-### From PyPI
+### As a library
 
 ```bash
-pip install resumecraft
+pip install resumecraft                # Core library only
+pip install resumecraft[pdf]           # + PDF output support
 ```
 
-With optional extras:
+### As a CLI tool
 
 ```bash
-pip install resumecraft[pdf]       # PDF output support
-pip install resumecraft[watch]     # Watch mode support
-pip install resumecraft[pdf,watch] # Both
-```
+pip install resumecraft[cli]           # Core + CLI
+pip install resumecraft[cli,pdf,watch] # Everything
+pip install resumecraft[all]           # Same as above
 
-### As a CLI tool (recommended)
-
-```bash
-pipx install resumecraft
-# or
-uv tool install resumecraft
+# Or install globally
+pipx install "resumecraft[cli]"
+uv tool install "resumecraft[cli]"
 ```
 
 ## Quick Start
@@ -78,35 +77,67 @@ When `-o` is omitted from `build`, the output file is automatically named with a
 ## Use as a Library
 
 ```python
+from resumecraft import ResumeCraft
+
+# From a JSON file
+rc = ResumeCraft.from_json("my-resume.json")
+rc.to_docx("resume.docx")
+
+# From a dict
+rc = ResumeCraft({"name": "John Doe", "contact": {...}, "summary": "..."})
+rc.to_docx("resume.docx")
+
+# Get bytes (for web frameworks)
+content = rc.to_bytes()
+```
+
+### FastAPI example
+
+```python
+import io
+from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
+from resumecraft import ResumeCraft
+
+app = FastAPI()
+
+@app.post("/resume")
+def generate(data: dict):
+    rc = ResumeCraft(data)
+    return StreamingResponse(
+        io.BytesIO(rc.to_bytes()),
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": "attachment; filename=resume.docx"},
+    )
+```
+
+### Flask example
+
+```python
+from flask import Flask, request, send_file
+from resumecraft import ResumeCraft
+import io
+
+app = Flask(__name__)
+
+@app.post("/resume")
+def generate():
+    rc = ResumeCraft(request.json)
+    return send_file(
+        io.BytesIO(rc.to_bytes()),
+        mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        download_name="resume.docx",
+    )
+```
+
+### Advanced usage
+
+You can also use the lower-level `Resume` and `DocxBuilder` classes directly:
+
+```python
 from resumecraft import Resume, DocxBuilder
 
-# From JSON file
 resume = Resume.from_json("my-resume.json")
-DocxBuilder(resume).save("resume.docx")
-
-# Or build the model directly
-from resumecraft.models import Resume, Contact, Link, Experience
-
-resume = Resume(
-    name="John Doe",
-    contact=Contact(
-        location="New York, NY",
-        email="john@example.com",
-        phone="+1-234-567-8900",
-        links=[Link(label="GitHub", url="https://github.com/johndoe")],
-    ),
-    summary="Software engineer with 5 years of experience...",
-    bold_keywords=["Python", "React", "FastAPI"],
-    experience=[
-        Experience(
-            company="Acme Corp",
-            location="New York, NY",
-            title="Senior Developer",
-            duration="JAN 2022 - PRESENT",
-            bullets=["Built APIs using FastAPI and PostgreSQL."],
-        )
-    ],
-)
 DocxBuilder(resume).save("resume.docx")
 ```
 
@@ -207,7 +238,8 @@ resumecraft/
 ├── README.md
 ├── LICENSE
 ├── src/resumecraft/
-│   ├── __init__.py        # Public API (Resume, DocxBuilder, __version__)
+│   ├── __init__.py        # Public API (ResumeCraft, Resume, DocxBuilder)
+│   ├── craft.py           # ResumeCraft facade (simple high-level API)
 │   ├── cli.py             # Typer CLI commands (build, validate, init, watch)
 │   ├── models.py          # Pydantic data models
 │   ├── builder.py         # DocxBuilder — converts models to .docx
@@ -218,6 +250,7 @@ resumecraft/
     │   └── sample.json    # Sample resume for tests
     ├── test_models.py
     ├── test_builder.py
+    ├── test_craft.py
     ├── test_cli.py
     └── test_utils.py
 ```

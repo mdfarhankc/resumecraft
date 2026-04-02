@@ -5,7 +5,12 @@ from datetime import datetime
 from resumecraft import __version__
 from pathlib import Path
 
-import typer
+try:
+    import typer
+except ImportError:
+    raise ImportError(
+        "The CLI requires 'typer'. Install it with: pip install resumecraft[cli]"
+    ) from None
 from pydantic import ValidationError
 
 from resumecraft.builder import DocxBuilder
