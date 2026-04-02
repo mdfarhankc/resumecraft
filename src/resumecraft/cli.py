@@ -224,8 +224,10 @@ def watch(
     input_file: Path = typer.Argument(...,
                                       help="Path to the resume JSON file."),
     output: Path = typer.Option(
-        "resume.docx", "-o", "--output",
-        help="Output file path (.docx or .pdf)."),
+        None, "-o", "--output",
+        help="Output file path (.docx or .pdf). Defaults to <input-name>.pdf"),
+    open_file: bool = typer.Option(
+        False, "--open", help="Open the file after first build."),
 ) -> None:
     """Watch a JSON file and rebuild on every save."""
     try:
@@ -241,6 +243,9 @@ def watch(
     if not input_file.exists():
         typer.echo(f"Error: {input_file} not found.", err=True)
         raise typer.Exit(1)
+
+    if output is None:
+        output = input_file.with_suffix(".pdf")
 
     def _rebuild() -> None:
         try:
@@ -262,6 +267,9 @@ def watch(
 
     typer.echo(f"Watching {input_file} for changes... (Ctrl+C to stop)")
     _rebuild()
+
+    if open_file:
+        _open_file(output)
 
     for _ in watch_files(input_file.parent, watch_filter=lambda _, path: Path(path).name == input_file.name):
         _rebuild()
