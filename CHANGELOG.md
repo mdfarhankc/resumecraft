@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.4.0
+
+- Watch mode defaults to PDF output — no file locking issues with PDF viewers
+- Watch mode derives output filename from input (e.g., `resume.json` → `resume.pdf`)
+- Add `--open` flag to watch command
+- Graceful error handling when output file is locked
+
 ## v0.3.0
 
 - Add `ResumeCraft` class — simple high-level API with `from_json()`, `to_docx()`, and `to_bytes()`

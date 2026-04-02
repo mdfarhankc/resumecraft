@@ -57,8 +57,8 @@ resumecraft build my-resume.json --open
 # 5. Validate without building
 resumecraft validate my-resume.json
 
-# 6. Watch for changes and rebuild automatically
-resumecraft watch my-resume.json -o resume.docx
+# 6. Watch for changes and rebuild automatically (defaults to PDF)
+resumecraft watch my-resume.json --open
 ```
 
 ## CLI Reference
@@ -69,10 +69,12 @@ resumecraft --version                   Show version
 resumecraft init -o FILE                Generate a blank JSON template
 resumecraft build FILE [-o FILE] [--open]  Build .docx (or .pdf) from JSON
 resumecraft validate FILE               Validate JSON without building
-resumecraft watch FILE [-o FILE]        Watch and rebuild on file changes
+resumecraft watch FILE [-o FILE] [--open]  Watch and rebuild on file changes
 ```
 
 When `-o` is omitted from `build`, the output file is automatically named with a timestamp, e.g., `resume_2026-04-01_03-45pm.docx`.
+
+When `-o` is omitted from `watch`, the output defaults to `<input-name>.pdf`. PDF viewers don't lock files, so changes appear instantly.
 
 ## Use as a Library
 
