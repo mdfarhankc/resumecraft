@@ -1,6 +1,6 @@
 [project]
 name = "resumecraft"
-version = "0.2.0"
+version = "0.3.0"
 description = "Generate professionally formatted .docx resumes from JSON data."
 readme = "README.md"
 license = "MIT"
