@@ -1,11 +1,16 @@
-import re
 from pathlib import Path
+from typing import Any
 
 from docx import Document
+from docx.document import Document as DocumentObject
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT
 from docx.shared import Pt
 
-from resumecraft.models import DEFAULT_SECTION_ORDER, Education, Experience, Project, Resume, Skill
+from resumecraft.models import (
+    DEFAULT_SECTION_ORDER,
+    Project,
+    Resume,
+)
 from resumecraft.styles import (
     BODY_SIZE,
     BOTTOM_MARGIN,
@@ -27,6 +32,19 @@ from resumecraft.utils import (
     keep_with_next,
 )
 
+DEFAULT_HEADINGS = {
+    "summary": "PROFESSIONAL SUMMARY",
+    "experience": "WORK EXPERIENCE",
+    "projects": "PROJECTS",
+    "professional_projects": "PROFESSIONAL PROJECTS",
+    "personal_projects": "PERSONAL & OPEN SOURCE PROJECTS",
+    "skills": "SKILLS",
+    "education": "EDUCATION",
+    "certifications": "CERTIFICATIONS",
+    "awards": "AWARDS & ACHIEVEMENTS",
+    "languages": "LANGUAGES",
+}
+
 
 class DocxBuilder:
     def __init__(self, resume: Resume) -> None:
@@ -34,7 +52,11 @@ class DocxBuilder:
         self.doc = Document()
         self._bold_pattern = build_bold_pattern(resume.bold_keywords)
         self._style = resolve_style(resume.style)
+        self._headings = {**DEFAULT_HEADINGS, **resume.headings}
         self._setup_document()
+
+    def _heading(self, section: str) -> str:
+        return self._headings.get(section, DEFAULT_HEADINGS[section])
 
     def _setup_document(self) -> None:
         for section in self.doc.sections:
@@ -47,7 +69,15 @@ class DocxBuilder:
         style.font.name = self._style["font_name"]
         style.font.size = Pt(10.5)
 
-    def _run(self, paragraph, text: str, bold=False, italic=False, size=None, font=None):
+    def _run(
+        self,
+        paragraph: Any,
+        text: str,
+        bold: bool = False,
+        italic: bool = False,
+        size: Any = None,
+        font: str | None = None,
+    ) -> Any:
         run = paragraph.add_run(text)
         run.bold = bold
         run.italic = italic
@@ -55,9 +85,7 @@ class DocxBuilder:
         run.font.name = font or self._style["font_name"]
         return run
 
-    # ── Section builders ──────────────────────────────────────
-
-    def _add_section_heading(self, text: str):
+    def _add_section_heading(self, text: str) -> Any:
         p = self.doc.add_paragraph()
         p.paragraph_format.space_before = self._style["section_space_before"]
         p.paragraph_format.space_after = self._style["section_space_after"]
@@ -71,8 +99,13 @@ class DocxBuilder:
         return p
 
     def _add_two_column_line(
-        self, left: str, right: str, left_bold=True, left_italic=False, left_size=None
-    ):
+        self,
+        left: str,
+        right: str,
+        left_bold: bool = True,
+        left_italic: bool = False,
+        left_size: Any = None,
+    ) -> Any:
         p = self.doc.add_paragraph()
         p.paragraph_format.space_before = Pt(0)
         p.paragraph_format.space_after = Pt(1)
@@ -85,7 +118,7 @@ class DocxBuilder:
         keep_with_next(p)
         return p
 
-    def _add_rich_bullet(self, text: str):
+    def _add_rich_bullet(self, text: str) -> Any:
         p = self.doc.add_paragraph(style="List Bullet")
         p.paragraph_format.space_after = self._style["bullet_space"]
         p.paragraph_format.space_before = self._style["bullet_space"]
@@ -106,7 +139,7 @@ class DocxBuilder:
 
         return p
 
-    def _add_project_header(self, name: str, subtitle: str):
+    def _add_project_header(self, name: str, subtitle: str) -> Any:
         p = self.doc.add_paragraph()
         p.paragraph_format.space_before = self._style["job_space_before"]
         p.paragraph_format.space_after = Pt(2)
@@ -115,7 +148,7 @@ class DocxBuilder:
         keep_with_next(p)
         return p
 
-    def _add_tech_line(self, text: str):
+    def _add_tech_line(self, text: str) -> None:
         p = self.doc.add_paragraph()
         p.paragraph_format.space_after = Pt(2)
         run = p.add_run(text)
@@ -125,26 +158,22 @@ class DocxBuilder:
         run.font.color.rgb = self._style["tech_line_color"]
         keep_with_next(p)
 
-    def _add_link_line(self, label: str, url: str):
+    def _add_link_line(self, label: str, url: str) -> None:
         p = self.doc.add_paragraph()
         p.paragraph_format.space_after = Pt(2)
         self._run(p, label, size=TECH_LINE_SIZE)
         add_hyperlink(p, url, url, self._style["link_color"], self._style["font_name"])
         keep_with_next(p)
 
-    # ── Top-level section renderers ───────────────────────────
-
     def _build_header(self) -> None:
         resume = self.resume
 
-        # Name
         p = self.doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.space_after = Pt(2)
         p.paragraph_format.space_before = Pt(0)
         self._run(p, resume.name, bold=True, size=NAME_SIZE)
 
-        # Contact line
         p = self.doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.paragraph_format.space_after = Pt(2)
@@ -159,7 +188,7 @@ class DocxBuilder:
             add_hyperlink(p, link.label, link.url, self._style["link_color"], self._style["font_name"])
 
     def _build_summary(self) -> None:
-        self._add_section_heading("PROFESSIONAL SUMMARY")
+        self._add_section_heading(self._heading("summary"))
         p = self.doc.add_paragraph()
         p.paragraph_format.space_after = Pt(4)
         self._run(p, self.resume.summary)
@@ -168,7 +197,7 @@ class DocxBuilder:
         if not self.resume.experience:
             return
 
-        self._add_section_heading("WORK EXPERIENCE")
+        self._add_section_heading(self._heading("experience"))
 
         for i, exp in enumerate(self.resume.experience):
             p = self._add_two_column_line(exp.company, exp.location)
@@ -189,8 +218,8 @@ class DocxBuilder:
             self._add_project_header(proj.name, proj.subtitle)
             if proj.tech_stack:
                 self._add_tech_line(proj.tech_stack)
-            if proj.link:
-                self._add_link_line(f"{proj.link.label}: ", proj.link.url)
+            for link in proj.all_links:
+                self._add_link_line(f"{link.label}: ", link.url)
             for bullet in proj.bullets:
                 self._add_rich_bullet(bullet)
 
@@ -198,7 +227,7 @@ class DocxBuilder:
         if not self.resume.skills:
             return
 
-        self._add_section_heading("SKILLS")
+        self._add_section_heading(self._heading("skills"))
 
         for skill in self.resume.skills:
             p = self.doc.add_paragraph()
@@ -211,7 +240,7 @@ class DocxBuilder:
         if not self.resume.education:
             return
 
-        self._add_section_heading("EDUCATION")
+        self._add_section_heading(self._heading("education"))
 
         for edu in self.resume.education:
             p = self._add_two_column_line(edu.institution, edu.duration)
@@ -220,34 +249,66 @@ class DocxBuilder:
             p2.paragraph_format.space_before = Pt(0)
             self._run(p2, edu.degree, italic=True)
 
+    def _build_certifications(self) -> None:
+        if not self.resume.certifications:
+            return
+
+        self._add_section_heading(self._heading("certifications"))
+
+        for cert in self.resume.certifications:
+            p = self._add_two_column_line(cert.name, cert.date)
+            p.paragraph_format.space_before = Pt(2)
+            p2 = self.doc.add_paragraph()
+            p2.paragraph_format.space_before = Pt(0)
+            self._run(p2, cert.issuer, italic=True)
+            for link in cert.all_links:
+                self._add_link_line(f"{link.label}: ", link.url)
+
+    def _build_awards(self) -> None:
+        if not self.resume.awards:
+            return
+
+        self._add_section_heading(self._heading("awards"))
+
+        for award in self.resume.awards:
+            p = self._add_two_column_line(award.title, award.date)
+            p.paragraph_format.space_before = Pt(2)
+            p2 = self.doc.add_paragraph()
+            p2.paragraph_format.space_before = Pt(0)
+            self._run(p2, award.issuer, italic=True)
+            if award.description:
+                p3 = self.doc.add_paragraph()
+                p3.paragraph_format.space_before = Pt(0)
+                self._run(p3, award.description)
+
     def _build_languages(self) -> None:
         if not self.resume.languages:
             return
 
-        self._add_section_heading("LANGUAGES")
+        self._add_section_heading(self._heading("languages"))
         p = self.doc.add_paragraph()
         p.paragraph_format.space_after = Pt(1)
         self._run(p, self.resume.languages)
 
-    # ── Public API ────────────────────────────────────────────
-
-    def build(self) -> Document:
+    def build(self) -> DocumentObject:
         self._build_header()
 
         section_builders = {
             "summary": self._build_summary,
             "experience": self._build_experience,
             "projects": lambda: self._build_projects(
-                self.resume.projects, "PROJECTS"
+                self.resume.projects, self._heading("projects")
             ),
             "professional_projects": lambda: self._build_projects(
-                self.resume.professional_projects, "PROFESSIONAL PROJECTS"
+                self.resume.professional_projects, self._heading("professional_projects")
             ),
             "personal_projects": lambda: self._build_projects(
-                self.resume.personal_projects, "PERSONAL & OPEN SOURCE PROJECTS"
+                self.resume.personal_projects, self._heading("personal_projects")
             ),
             "skills": self._build_skills,
             "education": self._build_education,
+            "certifications": self._build_certifications,
+            "awards": self._build_awards,
             "languages": self._build_languages,
         }
 

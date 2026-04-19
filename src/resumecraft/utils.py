@@ -63,7 +63,7 @@ def add_bottom_border(paragraph: Paragraph) -> None:
     pPr.append(pBdr)
 
 
-def build_bold_pattern(keywords: list[str]) -> re.Pattern | None:
+def build_bold_pattern(keywords: list[str]) -> re.Pattern[str] | None:
     if not keywords:
         return None
     sorted_kw = sorted(keywords, key=len, reverse=True)

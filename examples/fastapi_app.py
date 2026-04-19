@@ -22,7 +22,6 @@ app = FastAPI(title="ResumeCraft API")
 
 @app.post("/resume/docx")
 def generate_docx(data: dict):
-    """Generate a .docx resume."""
     rc = ResumeCraft(data)
     return StreamingResponse(
         io.BytesIO(rc.to_bytes()),
@@ -33,7 +32,6 @@ def generate_docx(data: dict):
 
 @app.post("/resume/pdf")
 def generate_pdf(data: dict):
-    """Generate a PDF resume."""
     rc = ResumeCraft(data)
     tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
     rc.to_pdf(tmp.name)
@@ -42,11 +40,9 @@ def generate_pdf(data: dict):
 
 @app.get("/resume/sample")
 def get_sample():
-    """Return a sample resume JSON to see all available fields."""
     return ResumeCraft.sample()
 
 
 @app.get("/resume/schema")
 def get_schema():
-    """Return the JSON schema for resume data."""
     return ResumeCraft.json_schema()

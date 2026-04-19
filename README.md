@@ -1,23 +1,28 @@
 # ResumeCraft
 
-Generate professional resumes from JSON with DOCX/PDF export, custom styling, and web framework support.
+[![PyPI version](https://img.shields.io/pypi/v/resumecraft.svg)](https://pypi.org/project/resumecraft/)
+[![Python versions](https://img.shields.io/pypi/pyversions/resumecraft.svg)](https://pypi.org/project/resumecraft/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Downloads](https://static.pepy.tech/badge/resumecraft/month)](https://pepy.tech/project/resumecraft)
 
-Use it as a Python library, CLI tool, or integrate into your web app (FastAPI, Django, Flask, etc.).
+**Build professional Word (`.docx`) and PDF resumes from a simple JSON file.**
+
+ResumeCraft is a Python resume/CV generator that takes JSON input and produces a polished Word document or PDF. Use it as a library, a CLI tool, or drop it into a web app (FastAPI, Flask, Django).
 
 ## Features
 
-- **JSON-driven** — All resume content lives in a single JSON file, easy to version control
-- **Auto bold keywords** — Define a list of keywords and they get bolded automatically in all bullet points
-- **Right-aligned dates** — Company locations and durations are properly right-aligned using tab stops
-- **Clickable hyperlinks** — Email, LinkedIn, GitHub, and project links are real clickable hyperlinks
-- **Smart page breaks** — Section headers never get orphaned at the bottom of a page
-- **Separate project sections** — Professional projects and personal/open source projects in distinct sections
-- **Tech stack tags** — Italic grey tech stack line under each project
-- **Pydantic validation** — JSON is validated against strict data models before building
-- **Custom section ordering** — Control which sections appear and in what order
-- **Watch mode** — Auto-rebuild on file save
-- **PDF output** — Optional PDF conversion via `docx2pdf`
-- **Auto-open** — Open the generated file after building with `--open`
+- Resume content lives in a single JSON file, easy to version control
+- Auto-bolds keywords across all bullet points
+- Right-aligned dates using proper tab stops
+- Clickable hyperlinks for email, LinkedIn, GitHub, and projects
+- Keeps section headings from getting orphaned at page breaks
+- Pydantic-validated JSON input
+- Custom section ordering and headings
+- Sections: experience, projects (with multi-link support), skills, education, certifications, awards, languages
+- Style presets: 7 fonts, 6 color themes, 3 spacing options
+- Watch mode with PDF output for live preview
+- Optional PDF export via `docx2pdf`
+- JSON schema for editor autocomplete
 
 ## Installation
 
@@ -226,7 +231,10 @@ Run `resumecraft init` to generate a full template. Here's the structure:
       "name": "Side Project",
       "subtitle": "| Personal Project",
       "tech_stack": null,
-      "link": { "label": "GitHub", "url": "https://github.com/you/project" },
+      "links": [
+        { "label": "GitHub", "url": "https://github.com/you/project" },
+        { "label": "Live Demo", "url": "https://project.example.com" }
+      ],
       "bullets": ["What you built and why."]
     }
   ],
@@ -239,6 +247,22 @@ Run `resumecraft init` to generate a full template. Here's the structure:
       "institution": "University Name",
       "degree": "Bachelor of Computer Science",
       "duration": "2019 - 2023"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "AWS Certified Developer",
+      "issuer": "Amazon Web Services",
+      "date": "2024",
+      "link": { "label": "Verify", "url": "https://aws.amazon.com/verify" }
+    }
+  ],
+  "awards": [
+    {
+      "title": "Employee of the Year",
+      "issuer": "Acme Corp",
+      "date": "2024",
+      "description": "Recognized for outstanding contributions."
     }
   ],
   "languages": "English - Native  |  Hindi - Professional",
@@ -254,6 +278,8 @@ Run `resumecraft init` to generate a full template. Here's the structure:
     "personal_projects",
     "skills",
     "education",
+    "certifications",
+    "awards",
     "languages"
   ]
 }
@@ -273,8 +299,11 @@ Run `resumecraft init` to generate a full template. Here's the structure:
 | `personal_projects` | object[] | No | Side projects and open source work |
 | `skills` | object[] | No | Categorized skill lists |
 | `education` | object[] | No | Degrees and institutions |
+| `certifications` | object[] | No | Professional certifications with issuer, date, and optional verification link |
+| `awards` | object[] | No | Awards and achievements with title, issuer, date, and optional description |
 | `languages` | string | No | Language proficiencies |
 | `section_order` | string[] | No | Custom order of sections (omit for default). Only listed sections are rendered. |
+| `headings` | object | No | Custom section headings (e.g., `{"summary": "ABOUT ME"}`) |
 | `style` | object | No | Styling options (font, color, spacing) |
 
 ### Style Options
@@ -299,9 +328,35 @@ Add a `style` object to customize the look of your resume:
 
 ### Available sections for `section_order`
 
-`summary`, `experience`, `projects`, `professional_projects`, `personal_projects`, `skills`, `education`, `languages`
+`summary`, `experience`, `projects`, `professional_projects`, `personal_projects`, `skills`, `education`, `certifications`, `awards`, `languages`
 
-> **Note:** Use either `projects` for a single section, or `professional_projects` + `personal_projects` for two separate sections. If you use `projects`, include it in `section_order` — it's not part of the default order.
+### Custom headings
+
+Override any section's heading text:
+
+```json
+{
+  "headings": {
+    "summary": "ABOUT ME",
+    "experience": "CAREER",
+    "awards": "HONORS"
+  }
+}
+```
+
+### Editor autocomplete (JSON schema)
+
+Reference the schema in your JSON for autocomplete and validation in VS Code, IntelliJ, etc.:
+
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/mdfarhankc/resumecraft/main/resumecraft-schema.json",
+  "name": "Your Name",
+  ...
+}
+```
+
+> **Note:** Use either `projects` for a single section, or `professional_projects` + `personal_projects` for two separate sections. If you use `projects`, include it in `section_order` - it's not part of the default order.
 
 ## Project Structure
 
@@ -322,7 +377,7 @@ resumecraft/
 │   ├── craft.py           # ResumeCraft facade (simple high-level API)
 │   ├── cli.py             # Typer CLI commands (build, validate, init, watch)
 │   ├── models.py          # Pydantic data models
-│   ├── builder.py         # DocxBuilder — converts models to .docx
+│   ├── builder.py         # DocxBuilder - converts models to .docx
 │   ├── styles.py          # Styling constants (fonts, sizes, colors, margins)
 │   └── utils.py           # Helpers (hyperlinks, keep_with_next, bold patterns)
 └── tests/

@@ -1,9 +1,8 @@
-import json
 
 import pytest
 from pydantic import ValidationError
 
-from resumecraft.models import Contact, Experience, Link, Project, Resume, DEFAULT_SECTION_ORDER
+from resumecraft.models import Contact, Experience, Link, Project, Resume
 
 
 class TestResume:
@@ -126,3 +125,58 @@ class TestProject:
         )
         assert proj.tech_stack == "Python, React"
         assert proj.link is None
+
+    def test_project_with_multiple_links(self):
+        proj = Project(
+            name="Test",
+            subtitle="| Personal",
+            links=[
+                Link(label="GitHub", url="https://github.com/x"),
+                Link(label="Live Demo", url="https://demo.example.com"),
+            ],
+            bullets=["Built it."],
+        )
+        assert len(proj.all_links) == 2
+        assert proj.all_links[0].label == "GitHub"
+        assert proj.all_links[1].label == "Live Demo"
+
+    def test_certification_with_multiple_links(self):
+        from resumecraft.models import Certification
+        cert = Certification(
+            name="AWS Certified Developer",
+            issuer="Amazon",
+            date="2024",
+            links=[
+                Link(label="Verify", url="https://aws.amazon.com/verify"),
+                Link(label="Credly", url="https://credly.com/badge"),
+            ],
+        )
+        assert len(cert.all_links) == 2
+
+    def test_contact_rejects_empty_fields(self):
+        with pytest.raises(ValidationError):
+            Contact(location="", email="x@y.com", phone="+1-234")
+        with pytest.raises(ValidationError):
+            Contact(location="NYC", email="", phone="+1-234")
+        with pytest.raises(ValidationError):
+            Contact(location="NYC", email="x@y.com", phone="")
+
+    def test_accented_characters(self):
+        resume = Resume(
+            name="José García",
+            contact=Contact(location="Málaga, Spain", email="jose@example.com", phone="+34-600-000"),
+            summary="Développeur full-stack.",
+        )
+        assert resume.name == "José García"
+
+    def test_project_legacy_link_and_new_links_combined(self):
+        proj = Project(
+            name="Test",
+            subtitle="| Personal",
+            link=Link(label="GitHub", url="https://github.com/x"),
+            links=[Link(label="Live Demo", url="https://demo.example.com")],
+            bullets=["Built it."],
+        )
+        assert len(proj.all_links) == 2
+        assert proj.all_links[0].label == "GitHub"  # legacy link first
+        assert proj.all_links[1].label == "Live Demo"

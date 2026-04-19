@@ -1,0 +1,441 @@
+{
+  "$defs": {
+    "Award": {
+      "properties": {
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "issuer": {
+          "title": "Issuer",
+          "type": "string"
+        },
+        "date": {
+          "title": "Date",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        }
+      },
+      "required": [
+        "title",
+        "issuer",
+        "date"
+      ],
+      "title": "Award",
+      "type": "object"
+    },
+    "Certification": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "issuer": {
+          "title": "Issuer",
+          "type": "string"
+        },
+        "date": {
+          "title": "Date",
+          "type": "string"
+        },
+        "link": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Link"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "name",
+        "issuer",
+        "date"
+      ],
+      "title": "Certification",
+      "type": "object"
+    },
+    "Contact": {
+      "properties": {
+        "location": {
+          "title": "Location",
+          "type": "string"
+        },
+        "email": {
+          "title": "Email",
+          "type": "string"
+        },
+        "phone": {
+          "title": "Phone",
+          "type": "string"
+        },
+        "links": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Link"
+          },
+          "title": "Links",
+          "type": "array"
+        }
+      },
+      "required": [
+        "location",
+        "email",
+        "phone"
+      ],
+      "title": "Contact",
+      "type": "object"
+    },
+    "Education": {
+      "properties": {
+        "institution": {
+          "title": "Institution",
+          "type": "string"
+        },
+        "degree": {
+          "title": "Degree",
+          "type": "string"
+        },
+        "duration": {
+          "title": "Duration",
+          "type": "string"
+        }
+      },
+      "required": [
+        "institution",
+        "degree",
+        "duration"
+      ],
+      "title": "Education",
+      "type": "object"
+    },
+    "Experience": {
+      "properties": {
+        "company": {
+          "title": "Company",
+          "type": "string"
+        },
+        "location": {
+          "title": "Location",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "duration": {
+          "title": "Duration",
+          "type": "string"
+        },
+        "bullets": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Bullets",
+          "type": "array"
+        }
+      },
+      "required": [
+        "company",
+        "location",
+        "title",
+        "duration",
+        "bullets"
+      ],
+      "title": "Experience",
+      "type": "object"
+    },
+    "Link": {
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "url"
+      ],
+      "title": "Link",
+      "type": "object"
+    },
+    "Project": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "subtitle": {
+          "title": "Subtitle",
+          "type": "string"
+        },
+        "tech_stack": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tech Stack"
+        },
+        "link": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Link"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "links": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Link"
+          },
+          "title": "Links",
+          "type": "array"
+        },
+        "bullets": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Bullets",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "subtitle",
+        "bullets"
+      ],
+      "title": "Project",
+      "type": "object"
+    },
+    "Skill": {
+      "properties": {
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "items": {
+          "title": "Items",
+          "type": "string"
+        }
+      },
+      "required": [
+        "category",
+        "items"
+      ],
+      "title": "Skill",
+      "type": "object"
+    },
+    "StyleOptions": {
+      "properties": {
+        "font": {
+          "default": "calibri",
+          "enum": [
+            "calibri",
+            "arial",
+            "times",
+            "garamond",
+            "georgia",
+            "helvetica",
+            "cambria"
+          ],
+          "title": "Font",
+          "type": "string"
+        },
+        "color": {
+          "default": "black",
+          "enum": [
+            "black",
+            "navy",
+            "forest",
+            "maroon",
+            "slate",
+            "royal"
+          ],
+          "title": "Color",
+          "type": "string"
+        },
+        "spacing": {
+          "default": "normal",
+          "enum": [
+            "compact",
+            "normal",
+            "relaxed"
+          ],
+          "title": "Spacing",
+          "type": "string"
+        }
+      },
+      "title": "StyleOptions",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "contact": {
+      "$ref": "#/$defs/Contact"
+    },
+    "summary": {
+      "title": "Summary",
+      "type": "string"
+    },
+    "bold_keywords": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Bold Keywords",
+      "type": "array"
+    },
+    "experience": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Experience"
+      },
+      "title": "Experience",
+      "type": "array"
+    },
+    "projects": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Project"
+      },
+      "title": "Projects",
+      "type": "array"
+    },
+    "professional_projects": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Project"
+      },
+      "title": "Professional Projects",
+      "type": "array"
+    },
+    "personal_projects": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Project"
+      },
+      "title": "Personal Projects",
+      "type": "array"
+    },
+    "skills": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Skill"
+      },
+      "title": "Skills",
+      "type": "array"
+    },
+    "education": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Education"
+      },
+      "title": "Education",
+      "type": "array"
+    },
+    "certifications": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Certification"
+      },
+      "title": "Certifications",
+      "type": "array"
+    },
+    "awards": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Award"
+      },
+      "title": "Awards",
+      "type": "array"
+    },
+    "languages": {
+      "default": "",
+      "title": "Languages",
+      "type": "string"
+    },
+    "section_order": {
+      "anyOf": [
+        {
+          "items": {
+            "enum": [
+              "summary",
+              "experience",
+              "projects",
+              "professional_projects",
+              "personal_projects",
+              "skills",
+              "education",
+              "certifications",
+              "awards",
+              "languages"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Section Order"
+    },
+    "headings": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "default": {},
+      "title": "Headings",
+      "type": "object"
+    },
+    "style": {
+      "$ref": "#/$defs/StyleOptions",
+      "default": {
+        "font": "calibri",
+        "color": "black",
+        "spacing": "normal"
+      }
+    }
+  },
+  "required": [
+    "name",
+    "contact",
+    "summary"
+  ],
+  "title": "ResumeCraft Resume",
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "JSON schema for resumecraft resume data. See https://github.com/mdfarhankc/resumecraft"
+}

@@ -1,6 +1,7 @@
-"""Django view for generating resumes.
+"""Django views for generating resumes.
 
 Add to your urls.py:
+
     from examples.django_view import generate_docx, generate_pdf
 
     urlpatterns = [
@@ -17,7 +18,6 @@ from resumecraft import ResumeCraft
 
 
 def generate_docx(request):
-    """Generate a .docx resume."""
     data = json.loads(request.body)
     rc = ResumeCraft(data)
     response = HttpResponse(
@@ -29,7 +29,6 @@ def generate_docx(request):
 
 
 def generate_pdf(request):
-    """Generate a PDF resume."""
     data = json.loads(request.body)
     rc = ResumeCraft(data)
     tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)

@@ -1,4 +1,3 @@
-from pathlib import Path
 
 from resumecraft.builder import DocxBuilder
 from resumecraft.models import StyleOptions
@@ -149,3 +148,66 @@ class TestDocxBuilder:
             output = tmp_path / f"{color}.docx"
             DocxBuilder(minimal_resume).save(output)
             assert output.exists()
+
+    def test_certifications_section(self, minimal_resume, tmp_path):
+        from resumecraft.models import Certification, Link
+        minimal_resume.certifications = [
+            Certification(
+                name="AWS Certified Developer",
+                issuer="Amazon Web Services",
+                date="2024",
+                link=Link(label="Verify", url="https://aws.amazon.com/verify"),
+            )
+        ]
+        minimal_resume.section_order = ["summary", "certifications"]
+        builder = DocxBuilder(minimal_resume)
+        doc = builder.build()
+        text = "\n".join(p.text for p in doc.paragraphs)
+        assert "CERTIFICATIONS" in text
+        assert "AWS Certified Developer" in text
+        assert "Amazon Web Services" in text
+
+    def test_awards_section(self, minimal_resume, tmp_path):
+        from resumecraft.models import Award
+        minimal_resume.awards = [
+            Award(
+                title="Employee of the Year",
+                issuer="Acme Corp",
+                date="2024",
+                description="Recognized for outstanding contributions.",
+            )
+        ]
+        minimal_resume.section_order = ["summary", "awards"]
+        builder = DocxBuilder(minimal_resume)
+        doc = builder.build()
+        text = "\n".join(p.text for p in doc.paragraphs)
+        assert "AWARDS & ACHIEVEMENTS" in text
+        assert "Employee of the Year" in text
+        assert "Acme Corp" in text
+
+    def test_custom_headings(self, minimal_resume):
+        minimal_resume.headings = {"summary": "ABOUT ME"}
+        builder = DocxBuilder(minimal_resume)
+        doc = builder.build()
+        text = "\n".join(p.text for p in doc.paragraphs)
+        assert "ABOUT ME" in text
+        assert "PROFESSIONAL SUMMARY" not in text
+
+    def test_multiple_project_links(self, full_resume, tmp_path):
+        from resumecraft.models import Link, Project
+        full_resume.personal_projects = [
+            Project(
+                name="Multi-Link Project",
+                subtitle="| Personal",
+                links=[
+                    Link(label="GitHub", url="https://github.com/x"),
+                    Link(label="Live Demo", url="https://demo.example.com"),
+                ],
+                bullets=["Built with two links."],
+            )
+        ]
+        builder = DocxBuilder(full_resume)
+        doc = builder.build()
+        text = "\n".join(p.text for p in doc.paragraphs)
+        assert "GitHub" in text
+        assert "Live Demo" in text

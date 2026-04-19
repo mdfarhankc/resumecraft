@@ -2,8 +2,9 @@ import json
 import platform
 import subprocess
 from datetime import datetime
-from resumecraft import __version__
 from pathlib import Path
+
+from resumecraft import __version__
 
 try:
     import typer
@@ -42,7 +43,6 @@ def main(
 
 
 def _load_resume(path: Path) -> Resume:
-    """Load and validate a resume JSON file with user-friendly error messages."""
     if not path.exists():
         typer.echo(f"Error: {path} not found.", err=True)
         raise typer.Exit(1)
@@ -52,36 +52,31 @@ def _load_resume(path: Path) -> Resume:
     except json.JSONDecodeError as e:
         typer.echo(f"Error: Invalid JSON in {path}", err=True)
         typer.echo(f"  {e.msg} (line {e.lineno}, column {e.colno})", err=True)
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
     try:
         return Resume(**data)
     except ValidationError as e:
         typer.echo(f"Error: Invalid resume data in {path}", err=True)
         for err in e.errors():
-            loc = " → ".join(str(l) for l in err["loc"])
+            loc = ".".join(str(part) for part in err["loc"])
             typer.echo(f"  {loc}: {err['msg']}", err=True)
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 def _convert_to_pdf(docx_path: Path, pdf_path: Path) -> Path:
-    """Convert a .docx file to PDF using docx2pdf."""
     try:
         from docx2pdf import convert
-    except ImportError:
-        typer.echo(
-            "Error: PDF output requires 'docx2pdf'. Install it with:",
-            err=True,
-        )
-        typer.echo("  pip install docx2pdf", err=True)
-        raise typer.Exit(1)
+    except ImportError as e:
+        typer.echo("Error: PDF output requires docx2pdf.", err=True)
+        typer.echo("  pip install resumecraft[pdf]", err=True)
+        raise typer.Exit(1) from e
 
     convert(str(docx_path), str(pdf_path))
     return pdf_path
 
 
 def _open_file(path: Path) -> None:
-    """Open a file with the system's default application."""
     system = platform.system()
     if system == "Windows":
         subprocess.Popen(["start", "", str(path)], shell=True)
@@ -141,6 +136,7 @@ def init(
 ) -> None:
     """Generate a blank resume JSON template."""
     template = {
+        "$schema": "https://raw.githubusercontent.com/mdfarhankc/resumecraft/main/resumecraft-schema.json",
         "name": "Your Name",
         "contact": {
             "location": "City, State, Country",
@@ -171,7 +167,6 @@ def init(
                 "name": "Project Name",
                 "subtitle": "| Location | Type",
                 "tech_stack": "FastAPI, React, PostgreSQL",
-                "link": None,
                 "bullets": ["Describe the project and your contributions."],
             }
         ],
@@ -180,12 +175,16 @@ def init(
                 "name": "Side Project",
                 "subtitle": "| Personal Project",
                 "tech_stack": None,
-                "link": {"label": "GitHub", "url": "https://github.com/you/project"},
+                "links": [
+                    {"label": "GitHub", "url": "https://github.com/you/project"},
+                    {"label": "Live Demo", "url": "https://project.example.com"},
+                ],
                 "bullets": ["Describe what you built and why."],
             }
         ],
         "skills": [
-            {"category": "Backend", "items": "Python (FastAPI, Django), Node.js"},
+            {"category": "Backend",
+                "items": "Python (FastAPI, Django), Node.js"},
             {"category": "Frontend", "items": "React, TypeScript"},
             {"category": "Databases", "items": "PostgreSQL, Redis, MongoDB"},
         ],
@@ -194,6 +193,22 @@ def init(
                 "institution": "University Name",
                 "degree": "Bachelor of Science in Computer Science",
                 "duration": "2019 - 2023",
+            }
+        ],
+        "certifications": [
+            {
+                "name": "AWS Certified Developer",
+                "issuer": "Amazon Web Services",
+                "date": "2024",
+                "link": {"label": "Verify", "url": "https://aws.amazon.com/verify"},
+            }
+        ],
+        "awards": [
+            {
+                "title": "Employee of the Year",
+                "issuer": "Acme Corp",
+                "date": "2024",
+                "description": "Recognized for outstanding contributions.",
             }
         ],
         "languages": "English - Native  |  Spanish - Professional Working Proficiency",
@@ -210,12 +225,15 @@ def init(
             "personal_projects",
             "skills",
             "education",
+            "certifications",
+            "awards",
             "languages",
         ],
     }
 
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(template, indent=2, ensure_ascii=False), encoding="utf-8")
+    output.write_text(json.dumps(template, indent=2,
+                      ensure_ascii=False), encoding="utf-8")
     typer.echo(f"Template saved to {output}")
 
 
@@ -232,13 +250,13 @@ def watch(
     """Watch a JSON file and rebuild on every save."""
     try:
         from watchfiles import watch as watch_files
-    except ImportError:
+    except ImportError as e:
         typer.echo(
             "Error: Watch mode requires 'watchfiles'. Install it with:",
             err=True,
         )
         typer.echo("  pip install resumecraft[watch]", err=True)
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
     if not input_file.exists():
         typer.echo(f"Error: {input_file} not found.", err=True)
@@ -261,9 +279,13 @@ def watch(
             timestamp = datetime.now().strftime("%I:%M:%S %p").lower()
             typer.echo(f"[{timestamp}] Rebuilt -> {output}")
         except SystemExit:
-            pass
+            timestamp = datetime.now().strftime("%I:%M:%S %p").lower()
+            typer.echo(
+                f"[{timestamp}] Build failed, waiting for next change.", err=True)
         except PermissionError:
-            typer.echo(f"Error: {output} is locked (close it in Word/another app).", err=True)
+            timestamp = datetime.now().strftime("%I:%M:%S %p").lower()
+            typer.echo(
+                f"[{timestamp}] {output} is locked (close it in Word), will retry on next change.", err=True)
 
     typer.echo(f"Watching {input_file} for changes... (Ctrl+C to stop)")
     _rebuild()

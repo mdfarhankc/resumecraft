@@ -21,7 +21,6 @@ app = Flask(__name__)
 
 @app.post("/resume/docx")
 def generate_docx():
-    """Generate a .docx resume."""
     rc = ResumeCraft(request.json)
     return send_file(
         io.BytesIO(rc.to_bytes()),
@@ -32,7 +31,6 @@ def generate_docx():
 
 @app.post("/resume/pdf")
 def generate_pdf():
-    """Generate a PDF resume."""
     rc = ResumeCraft(request.json)
     tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
     rc.to_pdf(tmp.name)
@@ -41,11 +39,9 @@ def generate_pdf():
 
 @app.get("/resume/sample")
 def get_sample():
-    """Return a sample resume JSON to see all available fields."""
     return jsonify(ResumeCraft.sample())
 
 
 @app.get("/resume/schema")
 def get_schema():
-    """Return the JSON schema for resume data."""
     return jsonify(ResumeCraft.json_schema())

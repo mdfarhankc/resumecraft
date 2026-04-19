@@ -1,13 +1,22 @@
-from docx.shared import Pt, Inches, RGBColor
+from typing import TYPE_CHECKING, Any
 
-# Page layout
+from docx.shared import Inches, Pt, RGBColor
+
+if TYPE_CHECKING:
+    from resumecraft.models import StyleOptions
+
 TOP_MARGIN = Inches(0.5)
 BOTTOM_MARGIN = Inches(0.5)
 LEFT_MARGIN = Inches(0.6)
 RIGHT_MARGIN = Inches(0.6)
 PAGE_WIDTH = Inches(8.5) - LEFT_MARGIN - RIGHT_MARGIN
 
-# ── Font presets ─────────────────────────────────────────
+NAME_SIZE = Pt(22)
+CONTACT_SIZE = Pt(9.5)
+SECTION_HEADING_SIZE = Pt(12)
+BODY_SIZE = Pt(10)
+COMPANY_SIZE = Pt(10.5)
+TECH_LINE_SIZE = Pt(9.5)
 
 FONT_MAP = {
     "calibri": "Calibri",
@@ -18,9 +27,6 @@ FONT_MAP = {
     "helvetica": "Helvetica",
     "cambria": "Cambria",
 }
-
-# ── Color presets ────────────────────────────────────────
-# Each theme defines: heading color, tech line color, link color
 
 COLOR_MAP = {
     "black": {
@@ -55,8 +61,6 @@ COLOR_MAP = {
     },
 }
 
-# ── Spacing presets ──────────────────────────────────────
-
 SPACING_MAP = {
     "compact": {
         "section_space_before": Pt(6),
@@ -78,24 +82,12 @@ SPACING_MAP = {
     },
 }
 
-# ── Font sizes (unchanged across presets) ────────────────
 
-NAME_SIZE = Pt(22)
-CONTACT_SIZE = Pt(9.5)
-SECTION_HEADING_SIZE = Pt(12)
-BODY_SIZE = Pt(10)
-COMPANY_SIZE = Pt(10.5)
-TECH_LINE_SIZE = Pt(9.5)
-
-
-def resolve_style(style):
-    """Resolve a StyleOptions into concrete style values."""
-    font_name = FONT_MAP[style.font]
+def resolve_style(style: "StyleOptions") -> dict[str, Any]:
     colors = COLOR_MAP[style.color]
     spacing = SPACING_MAP[style.spacing]
-
     return {
-        "font_name": font_name,
+        "font_name": FONT_MAP[style.font],
         "heading_color": colors["heading"],
         "tech_line_color": colors["tech_line"],
         "link_color": colors["link"],

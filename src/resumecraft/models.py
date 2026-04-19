@@ -1,17 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel, model_validator
-
-VALID_SECTIONS = (
-    "summary",
-    "experience",
-    "projects",
-    "professional_projects",
-    "personal_projects",
-    "skills",
-    "education",
-    "languages",
-)
+from pydantic import BaseModel, Field
 
 SectionName = Literal[
     "summary",
@@ -21,10 +10,25 @@ SectionName = Literal[
     "personal_projects",
     "skills",
     "education",
+    "certifications",
+    "awards",
     "languages",
 ]
 
-DEFAULT_SECTION_ORDER: list[SectionName] = list(VALID_SECTIONS)
+DEFAULT_SECTION_ORDER: tuple[SectionName, ...] = (
+    "summary",
+    "experience",
+    "projects",
+    "professional_projects",
+    "personal_projects",
+    "skills",
+    "education",
+    "certifications",
+    "awards",
+    "languages",
+)
+
+VALID_SECTIONS = DEFAULT_SECTION_ORDER
 
 
 FontName = Literal["calibri", "arial", "times", "garamond", "georgia", "helvetica", "cambria"]
@@ -44,9 +48,9 @@ class Link(BaseModel):
 
 
 class Contact(BaseModel):
-    location: str
-    email: str
-    phone: str
+    location: str = Field(min_length=1)
+    email: str = Field(min_length=1)
+    phone: str = Field(min_length=1)
     links: list[Link] = []
 
 
@@ -63,7 +67,15 @@ class Project(BaseModel):
     subtitle: str
     tech_stack: str | None = None
     link: Link | None = None
+    links: list[Link] = []
     bullets: list[str]
+
+    @property
+    def all_links(self) -> list[Link]:
+        result = list(self.links)
+        if self.link and self.link not in result:
+            result.insert(0, self.link)
+        return result
 
 
 class Skill(BaseModel):
@@ -77,6 +89,28 @@ class Education(BaseModel):
     duration: str
 
 
+class Certification(BaseModel):
+    name: str
+    issuer: str
+    date: str
+    link: Link | None = None
+    links: list[Link] = []
+
+    @property
+    def all_links(self) -> list[Link]:
+        result = list(self.links)
+        if self.link and self.link not in result:
+            result.insert(0, self.link)
+        return result
+
+
+class Award(BaseModel):
+    title: str
+    issuer: str
+    date: str
+    description: str | None = None
+
+
 class Resume(BaseModel):
     name: str
     contact: Contact
@@ -88,8 +122,11 @@ class Resume(BaseModel):
     personal_projects: list[Project] = []
     skills: list[Skill] = []
     education: list[Education] = []
+    certifications: list[Certification] = []
+    awards: list[Award] = []
     languages: str = ""
     section_order: list[SectionName] | None = None
+    headings: dict[str, str] = {}
     style: StyleOptions = StyleOptions()
 
     @classmethod

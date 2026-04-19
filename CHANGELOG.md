@@ -1,31 +1,40 @@
 # Changelog
 
+## v0.5.0
+
+- Add `certifications` section with issuer, date, and optional verification link
+- Add `awards` section with title, issuer, date, and optional description
+- Add multi-link support for projects via `links` field (legacy `link` still works)
+- Add custom section headings via `headings` field
+- Ship JSON schema in the wheel for `$schema` editor autocomplete
+- Validate required contact fields (location, email, phone must be non-empty)
+- Watch mode now logs build failures to stderr instead of silently swallowing them
+
 ## v0.4.0
 
-- Watch mode defaults to PDF output — no file locking issues with PDF viewers
-- Watch mode derives output filename from input (e.g., `resume.json` → `resume.pdf`)
+- Watch mode defaults to PDF output (PDF viewers don't lock files)
+- Watch mode derives output filename from input when `-o` is omitted
 - Add `--open` flag to watch command
 - Graceful error handling when output file is locked
 
 ## v0.3.0
 
-- Add `ResumeCraft` class — simple high-level API with `from_json()`, `to_docx()`, and `to_bytes()`
-- Make CLI optional — `typer` moved to `[cli]` extra, core library only needs `python-docx` + `pydantic`
-- Add `[all]` extra for installing everything (`cli` + `pdf` + `watch`)
-- Add unified `projects` section as alternative to split professional/personal
-- Add style options: 7 fonts, 6 color themes, 3 spacing presets
-- Add `json_schema()`, `to_dict()`, `sample()`, and `__repr__` to ResumeCraft
-- Accept JSON strings directly in ResumeCraft constructor
-- Add `to_pdf()` for PDF export from library code
-- Add `examples/` folder with FastAPI, Flask, Django, and basic usage examples
+- Add `ResumeCraft` class with `from_json()`, `to_docx()`, `to_pdf()`, `to_bytes()`
+- CLI is now optional (`typer` moved to `[cli]` extra)
+- Add `[all]` extra for installing everything
+- Add unified `projects` section alongside split professional/personal
+- Style options: 7 fonts, 6 color themes, 3 spacing presets
+- Add `json_schema()`, `to_dict()`, `sample()`, `__repr__()` on ResumeCraft
+- Accept JSON strings in ResumeCraft constructor
+- Add `examples/` folder
 
 ## v0.2.0
 
-- Add custom section ordering via `section_order` field
-- Add watch mode (`resumecraft watch`) for auto-rebuild on file changes
-- Add `--open` flag to open generated file after building
-- Add timestamped default output filenames
-- Add PDF output support via optional `docx2pdf`
+- Custom section ordering via `section_order`
+- Watch mode for auto-rebuild on file changes
+- `--open` flag to open output after building
+- Timestamped default output filenames
+- Optional PDF output via `docx2pdf`
 
 ## v0.1.0
 
