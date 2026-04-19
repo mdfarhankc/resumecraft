@@ -187,6 +187,7 @@ Run `resumecraft init` to generate a full template. Here's the structure:
 
 ```json
 {
+  "$schema": "https://raw.githubusercontent.com/mdfarhankc/resumecraft/main/resumecraft-schema.json",
   "name": "Your Name",
   "contact": {
     "location": "City, Country",
