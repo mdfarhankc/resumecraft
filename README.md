@@ -50,6 +50,15 @@ pipx install "resumecraft[cli]"
 uv tool install "resumecraft[cli]"
 ```
 
+### Run without installing
+
+Use `uvx` to run the CLI in an ephemeral environment:
+
+```bash
+uvx "resumecraft[cli]" build my-resume.json
+uvx "resumecraft[all]" build my-resume.json --open
+```
+
 ## Quick Start
 
 ```bash
