@@ -1,21 +1,18 @@
 # Changelog
 
-## Unreleased
-
-- Add `style.ats` option to strip formatting that confuses ATS parsers
-- Add pytest-cov and codecov upload to CI
-- Add Makefile for common dev tasks (`make test`, `make lint`, `make fix`, `make check`)
-- Deeper test coverage for watch mode, PDF export, and CLI error paths
-
 ## v0.5.0
 
 - Add `certifications` section with issuer, date, and optional verification link
 - Add `awards` section with title, issuer, date, and optional description
-- Add multi-link support for projects via `links` field (legacy `link` still works)
+- Add multi-link support for projects and certifications via `links` field (legacy `link` still works)
 - Add custom section headings via `headings` field
+- Add `style.ats` option to strip formatting that confuses ATS parsers
 - Ship JSON schema in the wheel for `$schema` editor autocomplete
 - Validate required contact fields (location, email, phone must be non-empty)
 - Watch mode now logs build failures to stderr instead of silently swallowing them
+- Add ruff and mypy with strict typing
+- Add pytest-cov and codecov upload to CI
+- Add Makefile for common dev tasks (`make test`, `make lint`, `make fix`, `make check`)
 
 ## v0.4.0
 
