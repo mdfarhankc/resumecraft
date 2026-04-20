@@ -2,16 +2,27 @@
 
 ## Sample resume
 
-[`sample_resume.json`](sample_resume.json) is a complete example showing every feature: work experience, projects with multiple links, skills, education, certifications, awards, and a navy color theme.
+Two versions built from the same content, showing the difference between a styled resume and an ATS-friendly one.
 
-Generated output:
+### Styled (navy theme)
+
+[`sample_resume.json`](sample_resume.json) - uses `style: { font: "calibri", color: "navy" }`.
+
 - [`output/sample_resume.docx`](output/sample_resume.docx)
 - [`output/sample_resume.pdf`](output/sample_resume.pdf)
+
+### ATS-friendly
+
+[`sample_resume_ats.json`](sample_resume_ats.json) - same content with `style: { font: "arial", color: "black", ats: true }`. Strips tab stops, heading borders, and colored tech lines for cleaner ATS parsing.
+
+- [`output/sample_resume_ats.docx`](output/sample_resume_ats.docx)
+- [`output/sample_resume_ats.pdf`](output/sample_resume_ats.pdf)
 
 To regenerate:
 
 ```bash
 resumecraft build examples/sample_resume.json -o examples/output/sample_resume.docx
+resumecraft build examples/sample_resume_ats.json -o examples/output/sample_resume_ats.docx
 ```
 
 ## Code examples
