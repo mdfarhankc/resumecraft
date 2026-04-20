@@ -109,3 +109,41 @@ class TestInit:
         # The generated template should pass validation
         result = runner.invoke(app, ["validate", str(output)])
         assert result.exit_code == 0
+
+
+class TestBuildPdfFlow:
+    def test_build_pdf_without_docx2pdf(self, sample_json_path, tmp_path, monkeypatch):
+        import sys
+        monkeypatch.setitem(sys.modules, "docx2pdf", None)
+        result = runner.invoke(app, ["build", str(sample_json_path), "-o", str(tmp_path / "x.pdf")])
+        assert result.exit_code == 1
+        assert "docx2pdf" in result.output
+
+
+class TestWatchMode:
+    def test_watch_file_not_found(self):
+        pytest.importorskip("watchfiles")
+        result = runner.invoke(app, ["watch", "nonexistent.json"])
+        assert result.exit_code == 1
+        assert "not found" in result.output
+
+    def test_watch_without_watchfiles(self, sample_json_path, monkeypatch):
+        import sys
+        monkeypatch.setitem(sys.modules, "watchfiles", None)
+        result = runner.invoke(app, ["watch", str(sample_json_path)])
+        assert result.exit_code == 1
+        assert "watchfiles" in result.output
+
+
+@pytest.mark.parametrize("system,expected_cmd", [
+    ("Windows", "start"),
+    ("Darwin", "open"),
+    ("Linux", "xdg-open"),
+])
+def test_open_file(monkeypatch, system, expected_cmd):
+    from resumecraft import cli
+    calls = []
+    monkeypatch.setattr(cli.platform, "system", lambda: system)
+    monkeypatch.setattr(cli.subprocess, "Popen", lambda *a, **kw: calls.append(a))
+    cli._open_file(cli.Path("x.docx"))
+    assert calls[0][0][0] == expected_cmd

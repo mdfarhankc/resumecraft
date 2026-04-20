@@ -53,6 +53,7 @@ class DocxBuilder:
         self._bold_pattern = build_bold_pattern(resume.bold_keywords)
         self._style = resolve_style(resume.style)
         self._headings = {**DEFAULT_HEADINGS, **resume.headings}
+        self._ats = resume.style.ats
         self._setup_document()
 
     def _heading(self, section: str) -> str:
@@ -94,7 +95,8 @@ class DocxBuilder:
         run.font.size = SECTION_HEADING_SIZE
         run.font.name = self._style["font_name"]
         run.font.color.rgb = self._style["heading_color"]
-        add_bottom_border(p)
+        if not self._ats:
+            add_bottom_border(p)
         keep_with_next(p)
         return p
 
@@ -109,10 +111,13 @@ class DocxBuilder:
         p = self.doc.add_paragraph()
         p.paragraph_format.space_before = Pt(0)
         p.paragraph_format.space_after = Pt(1)
-        p.paragraph_format.tab_stops.add_tab_stop(PAGE_WIDTH, WD_TAB_ALIGNMENT.RIGHT)
 
         self._run(p, left, bold=left_bold, italic=left_italic, size=left_size or COMPANY_SIZE)
-        p.add_run("\t")
+        if self._ats:
+            self._run(p, "  -  ", size=BODY_SIZE)
+        else:
+            p.paragraph_format.tab_stops.add_tab_stop(PAGE_WIDTH, WD_TAB_ALIGNMENT.RIGHT)
+            p.add_run("\t")
         self._run(p, right, size=BODY_SIZE)
 
         keep_with_next(p)
@@ -151,11 +156,13 @@ class DocxBuilder:
     def _add_tech_line(self, text: str) -> None:
         p = self.doc.add_paragraph()
         p.paragraph_format.space_after = Pt(2)
-        run = p.add_run(text)
-        run.italic = True
+        label = f"Tech: {text}" if self._ats else text
+        run = p.add_run(label)
+        run.italic = not self._ats
         run.font.size = TECH_LINE_SIZE
         run.font.name = self._style["font_name"]
-        run.font.color.rgb = self._style["tech_line_color"]
+        if not self._ats:
+            run.font.color.rgb = self._style["tech_line_color"]
         keep_with_next(p)
 
     def _add_link_line(self, label: str, url: str) -> None:

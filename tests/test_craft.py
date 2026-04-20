@@ -90,3 +90,28 @@ class TestToBytes:
         rc = ResumeCraft(full_resume)
         data = rc.to_bytes()
         assert len(data) > 0
+
+
+class TestToPdf:
+    def test_raises_without_docx2pdf(self, minimal_resume, tmp_path, monkeypatch):
+        import sys
+        monkeypatch.setitem(sys.modules, "docx2pdf", None)
+
+        import pytest
+        rc = ResumeCraft(minimal_resume)
+        with pytest.raises(ImportError, match="docx2pdf"):
+            rc.to_pdf(tmp_path / "x.pdf")
+
+    def test_writes_output(self, minimal_resume, tmp_path, monkeypatch):
+        import shutil
+        import sys
+        import types
+
+        fake = types.ModuleType("docx2pdf")
+        fake.convert = lambda src, dst: shutil.copy(src, dst)  # type: ignore
+        monkeypatch.setitem(sys.modules, "docx2pdf", fake)
+
+        out = tmp_path / "resume.pdf"
+        ResumeCraft(minimal_resume).to_pdf(out)
+        assert out.exists()
+        assert not list(tmp_path.glob("*.docx"))

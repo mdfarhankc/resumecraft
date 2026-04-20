@@ -40,6 +40,7 @@ class StyleOptions(BaseModel):
     font: FontName = "calibri"
     color: ColorTheme = "black"
     spacing: SpacingPreset = "normal"
+    ats: bool = False
 
 
 class Link(BaseModel):

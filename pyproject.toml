@@ -63,7 +63,13 @@ cli = ["typer>=0.15.0"]
 pdf = ["docx2pdf>=0.1.8"]
 watch = ["watchfiles>=1.0.0"]
 all = ["resumecraft[cli,pdf,watch]"]
-dev = ["pytest>=8.3.0", "typer>=0.15.0", "ruff>=0.8.0", "mypy>=1.13.0"]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-cov>=5.0.0",
+    "typer>=0.15.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/mdfarhankc/resumecraft"
@@ -85,6 +91,17 @@ packages = ["src/resumecraft"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "--cov=resumecraft --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["src/resumecraft"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise ImportError",
+    "if TYPE_CHECKING:",
+]
 
 [tool.ruff]
 line-length = 100

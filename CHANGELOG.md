@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Add `style.ats` option to strip formatting that confuses ATS parsers
+- Add pytest-cov and codecov upload to CI
+- Add Makefile for common dev tasks (`make test`, `make lint`, `make fix`, `make check`)
+- Deeper test coverage for watch mode, PDF export, and CLI error paths
+
 ## v0.5.0
 
 - Add `certifications` section with issuer, date, and optional verification link

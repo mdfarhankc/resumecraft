@@ -149,6 +149,26 @@ class TestDocxBuilder:
             DocxBuilder(minimal_resume).save(output)
             assert output.exists()
 
+    def test_ats_mode_builds(self, full_resume, tmp_path):
+        full_resume.style = StyleOptions(ats=True)
+        output = tmp_path / "ats.docx"
+        DocxBuilder(full_resume).save(output)
+        assert output.exists()
+
+    def test_ats_mode_has_no_tab_stops(self, full_resume):
+        full_resume.style = StyleOptions(ats=True)
+        doc = DocxBuilder(full_resume).build()
+        acme_line = next((p.text for p in doc.paragraphs if p.text.startswith("Acme Corp")), None)
+        assert acme_line is not None
+        assert "\t" not in acme_line
+        assert "-" in acme_line
+
+    def test_ats_mode_tech_line_prefixed(self, full_resume):
+        full_resume.style = StyleOptions(ats=True)
+        doc = DocxBuilder(full_resume).build()
+        text = "\n".join(p.text for p in doc.paragraphs)
+        assert "Tech:" in text
+
     def test_certifications_section(self, minimal_resume, tmp_path):
         from resumecraft.models import Certification, Link
         minimal_resume.certifications = [

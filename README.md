@@ -326,6 +326,9 @@ Add a `style` object to customize the look of your resume:
 | `font` | `calibri`, `arial`, `times`, `garamond`, `georgia`, `helvetica`, `cambria` | `calibri` |
 | `color` | `black`, `navy`, `forest`, `maroon`, `slate`, `royal` | `black` |
 | `spacing` | `compact`, `normal`, `relaxed` | `normal` |
+| `ats` | `true`, `false` | `false` |
+
+Set `"ats": true` to strip tab stops, colored tech lines, and heading borders for cleaner parsing by applicant tracking systems.
 
 ### Available sections for `section_order`
 
