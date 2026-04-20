@@ -1,0 +1,123 @@
+{
+  "$schema": "https://raw.githubusercontent.com/mdfarhankc/resumecraft/main/resumecraft-schema.json",
+  "name": "ALEX MORGAN",
+  "contact": {
+    "location": "Berlin, Germany",
+    "email": "alex.morgan@example.com",
+    "phone": "+49 170 1234567",
+    "links": [
+      { "label": "LinkedIn", "url": "https://linkedin.com/in/alexmorgan" },
+      { "label": "GitHub", "url": "https://github.com/alexmorgan" },
+      { "label": "Portfolio", "url": "https://alexmorgan.dev" }
+    ]
+  },
+  "summary": "Senior Backend Engineer with 7+ years building scalable Python services, payment systems, and developer tooling. Strong focus on clean architecture, observability, and team mentorship.",
+  "bold_keywords": [
+    "Python", "FastAPI", "Django", "PostgreSQL", "Redis", "Kafka",
+    "Kubernetes", "Docker", "AWS", "GCP", "TypeScript", "React",
+    "gRPC", "Celery", "Terraform"
+  ],
+  "experience": [
+    {
+      "company": "Fintech GmbH",
+      "location": "Berlin, Germany",
+      "title": "Senior Backend Engineer",
+      "duration": "JAN 2022 - PRESENT",
+      "bullets": [
+        "Led the redesign of the payment orchestration layer handling 2M+ daily transactions across 14 payment providers, reducing latency by 38%.",
+        "Owned the migration from a Django monolith to FastAPI microservices with gRPC, improving throughput 4x and reducing p99 latency from 900ms to 180ms.",
+        "Mentored 4 mid-level engineers and ran internal workshops on Python async patterns, testing strategy, and PostgreSQL query tuning.",
+        "Introduced SLO-based alerting on top of Prometheus and Grafana, reducing false pages by 62% while catching three production incidents earlier than before.",
+        "Shipped end-to-end Terraform modules for Kubernetes workloads on AWS EKS, cutting new-service provisioning time from 2 days to under an hour."
+      ]
+    },
+    {
+      "company": "DataLoop Labs",
+      "location": "Remote",
+      "title": "Backend Engineer",
+      "duration": "MAR 2019 - DEC 2021",
+      "bullets": [
+        "Built a multi-tenant ETL platform on Kafka and Celery processing 500GB of analytics events daily with exactly-once delivery guarantees.",
+        "Designed a plugin system that let customers write Python transforms executed in isolated sandboxes, increasing platform retention by 21%.",
+        "Rewrote the internal admin console in React with TypeScript, replacing a legacy jQuery app and cutting support tickets in half."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "QueueForge",
+      "subtitle": "| Open Source",
+      "tech_stack": "Python, Redis, FastAPI",
+      "links": [
+        { "label": "GitHub", "url": "https://github.com/alexmorgan/queueforge" },
+        { "label": "Docs", "url": "https://queueforge.dev" }
+      ],
+      "bullets": [
+        "A lightweight background job queue for Python with priority lanes, delayed jobs, and a built-in web dashboard. ~1.5k stars on GitHub.",
+        "Supports SQLite, PostgreSQL, and Redis backends with identical semantics and a pluggable serializer layer."
+      ]
+    },
+    {
+      "name": "ObservaBlog",
+      "subtitle": "| Side Project",
+      "tech_stack": "Next.js, MDX, Vercel",
+      "links": [
+        { "label": "Live", "url": "https://observablog.dev" }
+      ],
+      "bullets": [
+        "A technical blog on distributed systems and production Python, averaging 12k monthly readers."
+      ]
+    }
+  ],
+  "skills": [
+    { "category": "Languages", "items": "Python, TypeScript, Go, SQL" },
+    { "category": "Backend", "items": "FastAPI, Django, gRPC, Celery, Kafka" },
+    { "category": "Data", "items": "PostgreSQL, Redis, ClickHouse, Elasticsearch" },
+    { "category": "Infra", "items": "Docker, Kubernetes, Terraform, AWS, GCP" },
+    { "category": "Observability", "items": "Prometheus, Grafana, OpenTelemetry, Sentry" }
+  ],
+  "education": [
+    {
+      "institution": "Technical University of Munich",
+      "degree": "M.Sc. Computer Science",
+      "duration": "2015 - 2018"
+    }
+  ],
+  "certifications": [
+    {
+      "name": "AWS Certified Solutions Architect - Professional",
+      "issuer": "Amazon Web Services",
+      "date": "2024",
+      "link": { "label": "Verify", "url": "https://aws.amazon.com/verification" }
+    },
+    {
+      "name": "Certified Kubernetes Administrator (CKA)",
+      "issuer": "Cloud Native Computing Foundation",
+      "date": "2023"
+    }
+  ],
+  "awards": [
+    {
+      "title": "Engineering Excellence Award",
+      "issuer": "Fintech GmbH",
+      "date": "2024",
+      "description": "For leading the payment orchestration redesign that cut latency by 38%."
+    }
+  ],
+  "languages": "English - Fluent  |  German - B2  |  Spanish - Conversational",
+  "style": {
+    "font": "calibri",
+    "color": "navy",
+    "spacing": "normal"
+  },
+  "section_order": [
+    "summary",
+    "experience",
+    "projects",
+    "skills",
+    "education",
+    "certifications",
+    "awards",
+    "languages"
+  ]
+}

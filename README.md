@@ -9,6 +9,8 @@
 
 ResumeCraft is a Python resume/CV generator that takes JSON input and produces a polished Word document or PDF. Use it as a library, a CLI tool, or drop it into a web app (FastAPI, Flask, Django).
 
+See the [sample output](examples/output/sample_resume.pdf) generated from [sample_resume.json](examples/sample_resume.json) to get a feel for the formatting.
+
 ## Features
 
 - Resume content lives in a single JSON file, easy to version control
