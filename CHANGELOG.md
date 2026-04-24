@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.5.1
+
+### Changed
+- `typer` is a core dependency again so `uvx resumecraft` and `pipx install resumecraft` work without the `[cli]` extra. The `[cli]` extra is kept as a no-op for backward compat.
+
+### Fixed
+- CLI now shows a clear error (instead of a Python traceback) when passed a non-JSON file or a binary file.
+
 ## v0.5.0
 
 ### Added

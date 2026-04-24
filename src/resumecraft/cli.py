@@ -4,16 +4,10 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-from resumecraft import __version__
-
-try:
-    import typer
-except ImportError:
-    raise ImportError(
-        "The CLI requires 'typer'. Install it with: pip install resumecraft[cli]"
-    ) from None
+import typer
 from pydantic import ValidationError
 
+from resumecraft import __version__
 from resumecraft.builder import DocxBuilder
 from resumecraft.models import Resume
 
@@ -47,8 +41,20 @@ def _load_resume(path: Path) -> Resume:
         typer.echo(f"Error: {path} not found.", err=True)
         raise typer.Exit(1)
 
+    if path.suffix.lower() != ".json":
+        typer.echo(f"Error: {path} is not a JSON file.", err=True)
+        typer.echo(f"  Expected a .json file, got {path.suffix}.", err=True)
+        raise typer.Exit(1)
+
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
+        text = path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as e:
+        typer.echo(f"Error: {path} is not a valid UTF-8 text file.", err=True)
+        typer.echo("  Make sure you're passing a JSON file, not a binary file.", err=True)
+        raise typer.Exit(1) from e
+
+    try:
+        data = json.loads(text)
     except json.JSONDecodeError as e:
         typer.echo(f"Error: Invalid JSON in {path}", err=True)
         typer.echo(f"  {e.msg} (line {e.lineno}, column {e.colno})", err=True)

@@ -2,9 +2,6 @@ import json
 import re
 
 import pytest
-
-pytest.importorskip("typer", reason="CLI tests require typer (pip install resumecraft[cli])")
-
 from typer.testing import CliRunner
 
 from resumecraft.cli import app

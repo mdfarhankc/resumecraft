@@ -765,21 +765,18 @@ wheels = [
 
 [[package]]
 name = "resumecraft"
-version = "0.5.0"
+version = "0.5.1"
 source = { editable = "." }
 dependencies = [
     { name = "pydantic" },
     { name = "python-docx" },
+    { name = "typer" },
 ]
 
 [package.optional-dependencies]
 all = [
     { name = "docx2pdf" },
-    { name = "typer" },
     { name = "watchfiles" },
-]
-cli = [
-    { name = "typer" },
 ]
 dev = [
     { name = "mypy" },
@@ -803,9 +800,9 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=5.0.0" },
     { name = "python-docx", specifier = ">=1.2.0" },
-    { name = "resumecraft", extras = ["cli", "pdf", "watch"], marker = "extra == 'all'" },
+    { name = "resumecraft", extras = ["pdf", "watch"], marker = "extra == 'all'" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.8.0" },
-    { name = "typer", marker = "extra == 'cli'", specifier = ">=0.15.0" },
+    { name = "typer", specifier = ">=0.15.0" },
     { name = "typer", marker = "extra == 'dev'", specifier = ">=0.15.0" },
     { name = "watchfiles", marker = "extra == 'watch'", specifier = ">=1.0.0" },
 ]

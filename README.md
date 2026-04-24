@@ -31,31 +31,18 @@ See the generated samples to get a feel for the formatting:
 
 ## Installation
 
-### As a library
-
 ```bash
-pip install resumecraft                # Core library only
-pip install resumecraft[pdf]           # + PDF output support
-```
+pip install resumecraft              # library + CLI
+pip install resumecraft[pdf]         # + PDF export
+pip install resumecraft[pdf,watch]   # + PDF export + watch mode
+pip install resumecraft[all]         # everything
 
-### As a CLI tool
+# Install the CLI globally
+pipx install resumecraft
+uv tool install resumecraft
 
-```bash
-pip install resumecraft[cli]           # Core + CLI
-pip install resumecraft[cli,pdf,watch] # Everything
-pip install resumecraft[all]           # Same as above
-
-# Or install globally
-pipx install "resumecraft[cli]"
-uv tool install "resumecraft[cli]"
-```
-
-### Run without installing
-
-Use `uvx` to run the CLI in an ephemeral environment:
-
-```bash
-uvx "resumecraft[cli]" build my-resume.json
+# Or run without installing
+uvx resumecraft build my-resume.json
 uvx "resumecraft[all]" build my-resume.json --open
 ```
 
