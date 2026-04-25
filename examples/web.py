@@ -1,13 +1,10 @@
-"""FastAPI app that generates resumes via API.
+"""FastAPI endpoint that returns a generated resume.
 
 Run:
     pip install fastapi uvicorn resumecraft[pdf]
-    uvicorn examples.fastapi_app:app --reload
+    uvicorn examples.web:app --reload
 
-Test:
-    curl -X POST http://localhost:8000/resume/docx \
-        -H "Content-Type: application/json" \
-        -d @resume.json --output resume.docx
+The same pattern works for Flask and Django -- swap the response object.
 """
 
 import io
@@ -15,13 +12,14 @@ import tempfile
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, StreamingResponse
+
 from resumecraft import ResumeCraft
 
-app = FastAPI(title="ResumeCraft API")
+app = FastAPI()
 
 
 @app.post("/resume/docx")
-def generate_docx(data: dict):
+def docx(data: dict):
     rc = ResumeCraft(data)
     return StreamingResponse(
         io.BytesIO(rc.to_bytes()),
@@ -31,7 +29,7 @@ def generate_docx(data: dict):
 
 
 @app.post("/resume/pdf")
-def generate_pdf(data: dict):
+def pdf(data: dict):
     rc = ResumeCraft(data)
     tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
     rc.to_pdf(tmp.name)
@@ -39,10 +37,10 @@ def generate_pdf(data: dict):
 
 
 @app.get("/resume/sample")
-def get_sample():
+def sample():
     return ResumeCraft.sample()
 
 
 @app.get("/resume/schema")
-def get_schema():
+def schema():
     return ResumeCraft.json_schema()

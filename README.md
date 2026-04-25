@@ -9,10 +9,7 @@
 
 ResumeCraft is a Python resume/CV generator that takes JSON input and produces a polished Word document or PDF. Use it as a library, a CLI tool, or drop it into a web app (FastAPI, Flask, Django).
 
-See the generated samples to get a feel for the formatting:
-
-- [Styled PDF](examples/output/sample_resume.pdf) - navy theme, default layout
-- [ATS-friendly PDF](examples/output/sample_resume_ats.pdf) - stripped formatting for applicant tracking systems
+See the [generated PDF](examples/output/sample_resume.pdf) (built from [`sample_resume.json`](examples/sample_resume.json)) to get a feel for the formatting. Set `style.ats = true` for ATS-friendly output.
 
 ## Features
 
@@ -372,25 +369,25 @@ Reference the schema in your JSON for autocomplete and validation in VS Code, In
 resumecraft/
 ├── pyproject.toml
 ├── README.md
+├── CHANGELOG.md
 ├── LICENSE
+├── Makefile
+├── resumecraft-schema.json     # JSON schema (regenerate with: make schema)
 ├── examples/
-│   ├── basic.py            # Simple usage
-│   ├── from_json.py        # Build from JSON file
-│   ├── styled.py           # Custom fonts, colors, spacing
-│   ├── fastapi_app.py      # FastAPI REST API
-│   ├── flask_app.py        # Flask REST API
-│   └── django_view.py      # Django views
+│   ├── library.py              # Library usage
+│   ├── web.py                  # FastAPI/Flask/Django pattern
+│   ├── sample_resume.json
+│   └── output/sample_resume.pdf
 ├── src/resumecraft/
-│   ├── __init__.py        # Public API (ResumeCraft, Resume, DocxBuilder)
-│   ├── craft.py           # ResumeCraft facade (simple high-level API)
-│   ├── cli.py             # Typer CLI commands (build, validate, init, watch)
-│   ├── models.py          # Pydantic data models
-│   ├── builder.py         # DocxBuilder - converts models to .docx
-│   ├── styles.py          # Styling constants (fonts, sizes, colors, margins)
-│   └── utils.py           # Helpers (hyperlinks, keep_with_next, bold patterns)
+│   ├── __init__.py
+│   ├── craft.py                # ResumeCraft (entry point)
+│   ├── cli.py                  # CLI commands
+│   ├── models.py               # Pydantic data models
+│   ├── builder.py              # DocxBuilder
+│   ├── styles.py               # font/color/spacing maps
+│   └── utils.py                # paragraph helpers
 └── tests/
-    ├── fixtures/
-    │   └── sample.json    # Sample resume for tests
+    ├── fixtures/sample.json
     ├── test_models.py
     ├── test_builder.py
     ├── test_craft.py

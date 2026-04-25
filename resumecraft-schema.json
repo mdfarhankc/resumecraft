@@ -59,6 +59,14 @@
             }
           ],
           "default": null
+        },
+        "links": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Link"
+          },
+          "title": "Links",
+          "type": "array"
         }
       },
       "required": [
@@ -72,14 +80,17 @@
     "Contact": {
       "properties": {
         "location": {
+          "minLength": 1,
           "title": "Location",
           "type": "string"
         },
         "email": {
+          "minLength": 1,
           "title": "Email",
           "type": "string"
         },
         "phone": {
+          "minLength": 1,
           "title": "Phone",
           "type": "string"
         },
@@ -290,6 +301,11 @@
           ],
           "title": "Spacing",
           "type": "string"
+        },
+        "ats": {
+          "default": false,
+          "title": "Ats",
+          "type": "boolean"
         }
       },
       "title": "StyleOptions",
@@ -425,7 +441,8 @@
       "default": {
         "font": "calibri",
         "color": "black",
-        "spacing": "normal"
+        "spacing": "normal",
+        "ats": false
       }
     }
   },
@@ -437,5 +454,5 @@
   "title": "ResumeCraft Resume",
   "type": "object",
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "description": "JSON schema for resumecraft resume data. See https://github.com/mdfarhankc/resumecraft"
+  "description": "JSON schema for resumecraft resume data"
 }
