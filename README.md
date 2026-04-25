@@ -5,26 +5,28 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Downloads](https://static.pepy.tech/badge/resumecraft/month)](https://pepy.tech/project/resumecraft)
 
-**Build professional Word (`.docx`) and PDF resumes from a simple JSON file.**
+**Build professional Word (`.docx`) and PDF resumes from a JSON or YAML file.**
 
-ResumeCraft is a Python resume/CV generator that takes JSON input and produces a polished Word document or PDF. Use it as a library, a CLI tool, or drop it into a web app (FastAPI, Flask, Django).
+ResumeCraft is a Python resume/CV generator that takes JSON or YAML input and produces a polished Word document or PDF. Use it as a library, a CLI tool, or drop it into a web app (FastAPI, Flask, Django).
 
 See the [generated PDF](examples/output/sample_resume.pdf) (built from [`sample_resume.json`](examples/sample_resume.json)) to get a feel for the formatting. Set `style.ats = true` for ATS-friendly output.
 
 ## Features
 
-- Resume content lives in a single JSON file, easy to version control
+- Single JSON or YAML file as input (easy to version control)
 - Auto-bolds keywords across all bullet points
 - Right-aligned dates using proper tab stops
-- Clickable hyperlinks for email, LinkedIn, GitHub, and projects
+- Clickable hyperlinks for email, LinkedIn, GitHub, and project URLs
 - Keeps section headings from getting orphaned at page breaks
-- Pydantic-validated JSON input
-- Custom section ordering and headings
-- Sections: experience, projects (with multi-link support), skills, education, certifications, awards, languages
-- Style presets: 7 fonts, 6 color themes, 3 spacing options
+- Pydantic-validated input with strict mode (typos in field names raise instead of silently failing)
+- Custom section ordering and renamed headings
+- Sections: summary, experience, projects (with multi-link support), skills, education, certifications, awards, languages
+- Style presets: 7 fonts, 6 color themes, 3 spacing options, plus an ATS-friendly mode
 - Watch mode with PDF output for live preview
 - Optional PDF export via `docx2pdf`
-- JSON schema for editor autocomplete
+- Multiple factory methods (`from_jsonfile`, `from_yamlfile`, `from_bytes`, `from_dict`, …) for clean web framework integration
+- In-memory exports (`to_docx_bytes()`, `to_pdf_bytes()`) for streaming responses
+- JSON schema for editor autocomplete via `$schema`
 
 ## Installation
 
@@ -170,7 +172,7 @@ def generate_pdf():
     return send_file(io.BytesIO(pdf), mimetype="application/pdf", download_name="resume.pdf")
 ```
 
-See the [examples/](examples/) folder for more complete examples including Django.
+See the [examples/](examples/) folder for runnable examples (`library.py`, `web.py`).
 
 ### Advanced usage
 
@@ -311,7 +313,9 @@ Run `resumecraft init` to generate a full template. Here's the structure:
 | `languages` | string | No | Language proficiencies |
 | `section_order` | string[] | No | Custom order of sections (omit for default). Only listed sections are rendered. |
 | `headings` | object | No | Custom section headings (e.g., `{"summary": "ABOUT ME"}`) |
-| `style` | object | No | Styling options (font, color, spacing) |
+| `style` | object | No | Styling options (font, color, spacing, ats) |
+| `$schema` | string | No | Editor autocomplete hint, ignored at runtime |
+| `_version` | string | No | Library version that produced the file, ignored at runtime |
 
 ### Style Options
 
@@ -426,7 +430,7 @@ This creates `dist/resumecraft-x.x.x.tar.gz` and `dist/resumecraft-x.x.x-py3-non
 
 ### Publish to PyPI
 
-Create a GitHub release (e.g., `v0.2.0`) and the CI workflow will publish to PyPI automatically via trusted publishing.
+Tag a GitHub release (e.g. `v0.6.0`) and the CI workflow will publish to PyPI automatically via trusted publishing.
 
 ## License
 
