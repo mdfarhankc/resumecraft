@@ -30,6 +30,15 @@ class TestResume:
         minimal_resume.section_order = ["skills", "summary", "experience"]
         assert minimal_resume.section_order == ["skills", "summary", "experience"]
 
+    def test_duplicate_sections_rejected(self):
+        with pytest.raises(ValidationError, match="duplicate"):
+            Resume(
+                name="Test",
+                contact=Contact(location="NY", email="a@b.com", phone="123"),
+                summary="Test",
+                section_order=["summary", "experience", "summary"],
+            )
+
     def test_invalid_section_order(self):
         with pytest.raises(ValidationError):
             Resume(

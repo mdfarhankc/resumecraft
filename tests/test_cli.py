@@ -34,10 +34,13 @@ class TestBuild:
         result = runner.invoke(app, ["build", str(sample_json_path)])
         assert result.exit_code == 0
         assert "Resume saved to" in result.output
-        # Should match resume_YYYY-MM-DD_HH-MMam/pm.docx
-        files = list(tmp_path.glob("resume_*.docx"))
+        stem = sample_json_path.stem
+        files = list(tmp_path.glob(f"{stem}_*.docx"))
         assert len(files) == 1
-        assert re.match(r"resume_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}(am|pm)\.docx", files[0].name)
+        assert re.match(
+            rf"{re.escape(stem)}_\d{{4}}-\d{{2}}-\d{{2}}_\d{{2}}-\d{{2}}(am|pm)\.docx",
+            files[0].name,
+        )
 
     def test_build_file_not_found(self):
         result = runner.invoke(app, ["build", "nonexistent.json"])
@@ -57,6 +60,40 @@ class TestBuild:
         result = runner.invoke(app, ["build", str(bad)])
         assert result.exit_code == 1
         assert "Invalid resume data" in result.output
+
+    def test_build_non_json_extension(self, tmp_path):
+        txt = tmp_path / "resume.txt"
+        txt.write_text("not json", encoding="utf-8")
+        result = runner.invoke(app, ["build", str(txt)])
+        assert result.exit_code == 1
+        assert "not a JSON file" in result.output
+
+    def test_build_binary_input(self, tmp_path):
+        # Rename a binary to .json to bypass the extension check
+        bad = tmp_path / "bad.json"
+        bad.write_bytes(b"\x95\x00\x01\x02garbage")
+        result = runner.invoke(app, ["build", str(bad)])
+        assert result.exit_code == 1
+        assert "not a valid UTF-8" in result.output
+
+    def test_build_output_is_directory(self, sample_json_path, tmp_path):
+        result = runner.invoke(app, ["build", str(sample_json_path), "-o", str(tmp_path)])
+        assert result.exit_code == 1
+        assert "is a directory" in result.output
+
+    def test_build_pdf_flag_uses_input_stem(self, sample_json_path, tmp_path, monkeypatch):
+        # Stub docx2pdf to avoid requiring Word
+        import shutil
+        import sys
+        import types
+        fake = types.ModuleType("docx2pdf")
+        fake.convert = lambda src, dst: shutil.copy(src, dst)
+        monkeypatch.setitem(sys.modules, "docx2pdf", fake)
+
+        monkeypatch.chdir(tmp_path)
+        result = runner.invoke(app, ["build", str(sample_json_path), "--pdf"])
+        assert result.exit_code == 0
+        assert (tmp_path / f"{sample_json_path.stem}.pdf").exists()
 
 
 class TestValidate:

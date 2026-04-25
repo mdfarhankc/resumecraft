@@ -1,12 +1,19 @@
 # Changelog
 
-## v0.5.1
+## v0.6.0
+
+### Added
+- `--pdf` flag on `build` as a shortcut for `-o <input-name>.pdf`.
+- Reject duplicate entries in `section_order` at validation time.
 
 ### Changed
 - `typer` is a core dependency again so `uvx resumecraft` and `pipx install resumecraft` work without the `[cli]` extra. The `[cli]` extra is kept as a no-op for backward compat.
+- Default output filename now uses the input file's stem, e.g. `my-resume_2026-04-24_11-33pm.docx` instead of `resume_...docx`.
+- CLI catches output-path errors (locked files, directories, disk issues) with a clear message instead of a traceback.
 
 ### Fixed
-- CLI now shows a clear error (instead of a Python traceback) when passed a non-JSON file or a binary file.
+- CLI shows a clear error (instead of a Python traceback) when passed a non-JSON or binary file.
+- PDF temp file is cleaned up even if the PDF conversion fails.
 
 ## v0.5.0
 

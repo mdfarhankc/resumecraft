@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 SectionName = Literal[
     "summary",
@@ -129,6 +129,14 @@ class Resume(BaseModel):
     section_order: list[SectionName] | None = None
     headings: dict[str, str] = {}
     style: StyleOptions = StyleOptions()
+
+    @field_validator("section_order")
+    @classmethod
+    def _no_duplicate_sections(cls, v: list[SectionName] | None) -> list[SectionName] | None:
+        if v is not None and len(v) != len(set(v)):
+            dupes = sorted({s for s in v if v.count(s) > 1})
+            raise ValueError(f"duplicate sections in section_order: {dupes}")
+        return v
 
     @classmethod
     def from_json(cls, path: str) -> "Resume":

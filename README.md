@@ -54,31 +54,34 @@ resumecraft init -o my-resume.json
 
 # 2. Edit my-resume.json with your details
 
-# 3. Build your resume
+# 3. Build your resume (docx)
 resumecraft build my-resume.json
 
-# 4. Build and open immediately
-resumecraft build my-resume.json --open
+# 4. Build a PDF with the same filename (my-resume.pdf)
+resumecraft build my-resume.json --pdf
 
-# 5. Validate without building
+# 5. Build and open immediately
+resumecraft build my-resume.json --pdf --open
+
+# 6. Validate without building
 resumecraft validate my-resume.json
 
-# 6. Watch for changes and rebuild automatically (defaults to PDF)
+# 7. Watch for changes and rebuild automatically (defaults to PDF)
 resumecraft watch my-resume.json --open
 ```
 
 ## CLI Reference
 
 ```
-resumecraft --help                      Show all commands
-resumecraft --version                   Show version
-resumecraft init -o FILE                Generate a blank JSON template
-resumecraft build FILE [-o FILE] [--open]  Build .docx (or .pdf) from JSON
-resumecraft validate FILE               Validate JSON without building
-resumecraft watch FILE [-o FILE] [--open]  Watch and rebuild on file changes
+resumecraft --help                                Show all commands
+resumecraft --version                             Show version
+resumecraft init -o FILE                          Generate a blank JSON template
+resumecraft build FILE [-o FILE] [--pdf] [--open]  Build .docx or .pdf from JSON
+resumecraft validate FILE                         Validate JSON without building
+resumecraft watch FILE [-o FILE] [--open]         Watch and rebuild on file changes
 ```
 
-When `-o` is omitted from `build`, the output file is automatically named with a timestamp, e.g., `resume_2026-04-01_03-45pm.docx`.
+When `-o` is omitted from `build`, the output is named after the input file with a timestamp, e.g., `my-resume_2026-04-01_03-45pm.docx`.
 
 When `-o` is omitted from `watch`, the output defaults to `<input-name>.pdf`. PDF viewers don't lock files, so changes appear instantly.
 

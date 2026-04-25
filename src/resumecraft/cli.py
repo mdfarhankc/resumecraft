@@ -82,6 +82,21 @@ def _convert_to_pdf(docx_path: Path, pdf_path: Path) -> Path:
     return pdf_path
 
 
+def _save_safely(builder: DocxBuilder, output: Path) -> Path:
+    if output.is_dir():
+        typer.echo(f"Error: {output} is a directory. Give a file path.", err=True)
+        raise typer.Exit(1)
+    try:
+        return builder.save(output)
+    except PermissionError as e:
+        typer.echo(f"Error: Can't write to {output} (locked or read-only).", err=True)
+        typer.echo("  Close the file in Word/another app and try again.", err=True)
+        raise typer.Exit(1) from e
+    except OSError as e:
+        typer.echo(f"Error: Failed to save {output}: {e}", err=True)
+        raise typer.Exit(1) from e
+
+
 def _open_file(path: Path) -> None:
     system = platform.system()
     if system == "Windows":
@@ -98,26 +113,34 @@ def build(
                                       help="Path to the resume JSON file."),
     output: Path = typer.Option(
         None, "-o", "--output",
-        help="Output file path (.docx or .pdf). Defaults to resume_YYYY-MM-DD_HH-MMam/pm.docx"),
+        help="Output file path. Defaults to <input-name>_YYYY-MM-DD_HH-MMam/pm.docx"),
+    pdf: bool = typer.Option(
+        False, "--pdf",
+        help="Shortcut for '-o <input-name>.pdf'. Ignored if -o is given."),
     open_file: bool = typer.Option(
         False, "--open", help="Open the file after building."),
 ) -> None:
-    """Build a .docx resume from a JSON file."""
+    """Build a .docx (or .pdf) resume from a JSON file."""
     if output is None:
-        timestamp = datetime.now().strftime("%Y-%m-%d_%I-%M%p").lower()
-        output = Path(f"resume_{timestamp}.docx")
+        if pdf:
+            output = Path(f"{input_file.stem}.pdf")
+        else:
+            timestamp = datetime.now().strftime("%Y-%m-%d_%I-%M%p").lower()
+            output = Path(f"{input_file.stem}_{timestamp}.docx")
 
     resume = _load_resume(input_file)
     builder = DocxBuilder(resume)
 
     if output.suffix.lower() == ".pdf":
         docx_tmp = output.with_suffix(".docx")
-        builder.save(docx_tmp)
-        _convert_to_pdf(docx_tmp, output)
-        docx_tmp.unlink()
+        _save_safely(builder, docx_tmp)
+        try:
+            _convert_to_pdf(docx_tmp, output)
+        finally:
+            docx_tmp.unlink(missing_ok=True)
         typer.echo(f"Resume saved to {output}")
     else:
-        saved = builder.save(output)
+        saved = _save_safely(builder, output)
         typer.echo(f"Resume saved to {saved}")
 
     if open_file:
@@ -272,26 +295,26 @@ def watch(
         output = input_file.with_suffix(".pdf")
 
     def _rebuild() -> None:
+        ts = datetime.now().strftime("%I:%M:%S %p").lower()
         try:
             resume = _load_resume(input_file)
             builder = DocxBuilder(resume)
             if output.suffix.lower() == ".pdf":
                 docx_tmp = output.with_suffix(".docx")
                 builder.save(docx_tmp)
-                _convert_to_pdf(docx_tmp, output)
-                docx_tmp.unlink()
+                try:
+                    _convert_to_pdf(docx_tmp, output)
+                finally:
+                    docx_tmp.unlink(missing_ok=True)
             else:
                 builder.save(output)
-            timestamp = datetime.now().strftime("%I:%M:%S %p").lower()
-            typer.echo(f"[{timestamp}] Rebuilt -> {output}")
+            typer.echo(f"[{ts}] Rebuilt -> {output}")
         except SystemExit:
-            timestamp = datetime.now().strftime("%I:%M:%S %p").lower()
-            typer.echo(
-                f"[{timestamp}] Build failed, waiting for next change.", err=True)
+            typer.echo(f"[{ts}] Build failed, waiting for next change.", err=True)
         except PermissionError:
-            timestamp = datetime.now().strftime("%I:%M:%S %p").lower()
-            typer.echo(
-                f"[{timestamp}] {output} is locked (close it in Word), will retry on next change.", err=True)
+            typer.echo(f"[{ts}] {output} is locked (close it in Word), will retry.", err=True)
+        except OSError as e:
+            typer.echo(f"[{ts}] Failed to save {output}: {e}", err=True)
 
     typer.echo(f"Watching {input_file} for changes... (Ctrl+C to stop)")
     _rebuild()
