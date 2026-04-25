@@ -8,10 +8,9 @@ The same pattern works for Flask and Django -- swap the response object.
 """
 
 import io
-import tempfile
 
-from fastapi import FastAPI
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi import FastAPI, UploadFile
+from fastapi.responses import Response, StreamingResponse
 
 from resumecraft import ResumeCraft
 
@@ -20,9 +19,9 @@ app = FastAPI()
 
 @app.post("/resume/docx")
 def docx(data: dict):
-    rc = ResumeCraft(data)
+    rc = ResumeCraft.from_dict(data)
     return StreamingResponse(
-        io.BytesIO(rc.to_bytes()),
+        io.BytesIO(rc.to_docx_bytes()),
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         headers={"Content-Disposition": "attachment; filename=resume.docx"},
     )
@@ -30,10 +29,16 @@ def docx(data: dict):
 
 @app.post("/resume/pdf")
 def pdf(data: dict):
-    rc = ResumeCraft(data)
-    tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
-    rc.to_pdf(tmp.name)
-    return FileResponse(tmp.name, filename="resume.pdf", media_type="application/pdf")
+    return Response(
+        ResumeCraft.from_dict(data).to_pdf_bytes(),
+        media_type="application/pdf",
+    )
+
+
+@app.post("/resume/upload")
+async def upload(file: UploadFile):
+    rc = ResumeCraft.from_bytes(await file.read())
+    return Response(rc.to_pdf_bytes(), media_type="application/pdf")
 
 
 @app.get("/resume/sample")

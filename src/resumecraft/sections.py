@@ -61,13 +61,13 @@ class HeaderSection(Section):
         run(ctx, p, f"{contact.location}  |  ", size=CONTACT_SIZE)
         add_hyperlink(
             p, contact.email, f"mailto:{contact.email}",
-            ctx.style["link_color"], ctx.style["font_name"],
+            ctx.style.link_color, ctx.style.font_name,
         )
         run(ctx, p, f"  |  {contact.phone}", size=CONTACT_SIZE)
 
         for link in contact.links:
             run(ctx, p, "  |  ", size=CONTACT_SIZE)
-            add_hyperlink(p, link.label, link.url, ctx.style["link_color"], ctx.style["font_name"])
+            add_hyperlink(p, link.label, link.url, ctx.style.link_color, ctx.style.font_name)
 
 
 class SummarySection(Section):
@@ -92,7 +92,7 @@ class ExperienceSection(Section):
         add_section_heading(ctx, self.heading(ctx))
         for i, exp in enumerate(resume.experience):
             p = add_two_column_line(ctx, exp.company, exp.location)
-            p.paragraph_format.space_before = ctx.style["job_space_before"] if i == 0 else Pt(8)
+            p.paragraph_format.space_before = ctx.style.job_space_before if i == 0 else Pt(8)
             add_two_column_line(
                 ctx, exp.title, exp.duration,
                 left_bold=False, left_italic=True, left_size=BODY_SIZE,

@@ -4,6 +4,7 @@
 
 ### Added
 - `ResumeCraft.from_jsonfile`, `from_json` (string), `from_bytes`, `from_dict` factory methods. `from_bytes` handles UTF-8 BOM and rejects binary input cleanly.
+- YAML input via `ResumeCraft.from_yamlfile` and `from_yaml`, plus a new `[yaml]` extra. CLI's `build` and `watch` auto-detect `.yaml` / `.yml`.
 - `to_docx_bytes()` and `to_pdf_bytes()` for in-memory exports.
 - `--pdf` flag on `build` as a shortcut for `-o <input-name>.pdf`.
 - Reject duplicate entries in `section_order` at validation time.

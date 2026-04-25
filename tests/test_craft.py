@@ -38,6 +38,25 @@ class TestFactories:
         with pytest.raises(ValueError, match="not valid UTF-8"):
             ResumeCraft.from_bytes(b"\x95\x00\x01garbage")
 
+    def test_from_yaml(self, minimal_resume):
+        import yaml
+        text = yaml.safe_dump(minimal_resume.model_dump())
+        rc = ResumeCraft.from_yaml(text)
+        assert rc.resume.name == "John Doe"
+
+    def test_from_yamlfile(self, minimal_resume, tmp_path):
+        import yaml
+        path = tmp_path / "resume.yaml"
+        path.write_text(yaml.safe_dump(minimal_resume.model_dump()))
+        rc = ResumeCraft.from_yamlfile(path)
+        assert rc.resume.name == "John Doe"
+
+    def test_from_yaml_without_pyyaml(self, monkeypatch):
+        import sys
+        monkeypatch.setitem(sys.modules, "yaml", None)
+        with pytest.raises(ImportError, match="pyyaml"):
+            ResumeCraft.from_yaml("name: x")
+
 
 class TestDeprecatedConstructors:
     def test_dict_constructor_warns(self, minimal_resume):

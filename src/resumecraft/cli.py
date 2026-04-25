@@ -7,9 +7,11 @@ from pathlib import Path
 import typer
 from pydantic import ValidationError
 
-from resumecraft import __version__
+from resumecraft import ResumeCraft, __version__
 from resumecraft.builder import DocxBuilder
 from resumecraft.models import Resume
+
+SCHEMA_URL = "https://raw.githubusercontent.com/mdfarhankc/resumecraft/main/schema.json"
 
 
 def _version_callback(value: bool) -> None:
@@ -41,20 +43,30 @@ def _load_resume(path: Path) -> Resume:
         typer.echo(f"Error: {path} not found.", err=True)
         raise typer.Exit(1)
 
-    if path.suffix.lower() != ".json":
-        typer.echo(f"Error: {path} is not a JSON file.", err=True)
-        typer.echo(f"  Expected a .json file, got {path.suffix}.", err=True)
+    suffix = path.suffix.lower()
+    if suffix not in {".json", ".yaml", ".yml"}:
+        typer.echo(f"Error: {path} must be a .json, .yaml or .yml file.", err=True)
+        typer.echo(f"  Got: {path.suffix}", err=True)
         raise typer.Exit(1)
 
     try:
-        text = path.read_text(encoding="utf-8")
+        text = path.read_text(encoding="utf-8-sig")
     except UnicodeDecodeError as e:
         typer.echo(f"Error: {path} is not a valid UTF-8 text file.", err=True)
-        typer.echo("  Make sure you're passing a JSON file, not a binary file.", err=True)
+        typer.echo("  Make sure you're passing a text file, not a binary file.", err=True)
         raise typer.Exit(1) from e
 
     try:
-        data = json.loads(text)
+        if suffix == ".json":
+            data = json.loads(text)
+        else:
+            try:
+                import yaml
+            except ImportError as e:
+                typer.echo("Error: YAML input requires pyyaml.", err=True)
+                typer.echo("  pip install resumecraft[yaml]", err=True)
+                raise typer.Exit(1) from e
+            data = yaml.safe_load(text)
     except json.JSONDecodeError as e:
         typer.echo(f"Error: Invalid JSON in {path}", err=True)
         typer.echo(f"  {e.msg} (line {e.lineno}, column {e.colno})", err=True)
@@ -165,104 +177,16 @@ def init(
 ) -> None:
     """Generate a blank resume JSON template."""
     template = {
-        "$schema": "https://raw.githubusercontent.com/mdfarhankc/resumecraft/main/resumecraft-schema.json",
-        "name": "Your Name",
-        "contact": {
-            "location": "City, State, Country",
-            "email": "your@email.com",
-            "phone": "+1-234-567-8900",
-            "links": [
-                {"label": "LinkedIn", "url": "https://linkedin.com/in/yourprofile"},
-                {"label": "GitHub", "url": "https://github.com/yourusername"},
-            ],
-        },
-        "summary": "A brief professional summary about yourself.",
-        "bold_keywords": ["Python", "React", "FastAPI", "PostgreSQL", "Docker"],
-        "experience": [
-            {
-                "company": "Company Name",
-                "location": "City, Country",
-                "title": "Your Title",
-                "duration": "JAN 2023 - PRESENT",
-                "bullets": [
-                    "Describe what you did and the impact it had.",
-                    "Use action verbs and quantify results where possible.",
-                ],
-            }
-        ],
-        "projects": [],
-        "professional_projects": [
-            {
-                "name": "Project Name",
-                "subtitle": "| Location | Type",
-                "tech_stack": "FastAPI, React, PostgreSQL",
-                "bullets": ["Describe the project and your contributions."],
-            }
-        ],
-        "personal_projects": [
-            {
-                "name": "Side Project",
-                "subtitle": "| Personal Project",
-                "tech_stack": None,
-                "links": [
-                    {"label": "GitHub", "url": "https://github.com/you/project"},
-                    {"label": "Live Demo", "url": "https://project.example.com"},
-                ],
-                "bullets": ["Describe what you built and why."],
-            }
-        ],
-        "skills": [
-            {"category": "Backend",
-                "items": "Python (FastAPI, Django), Node.js"},
-            {"category": "Frontend", "items": "React, TypeScript"},
-            {"category": "Databases", "items": "PostgreSQL, Redis, MongoDB"},
-        ],
-        "education": [
-            {
-                "institution": "University Name",
-                "degree": "Bachelor of Science in Computer Science",
-                "duration": "2019 - 2023",
-            }
-        ],
-        "certifications": [
-            {
-                "name": "AWS Certified Developer",
-                "issuer": "Amazon Web Services",
-                "date": "2024",
-                "link": {"label": "Verify", "url": "https://aws.amazon.com/verify"},
-            }
-        ],
-        "awards": [
-            {
-                "title": "Employee of the Year",
-                "issuer": "Acme Corp",
-                "date": "2024",
-                "description": "Recognized for outstanding contributions.",
-            }
-        ],
-        "languages": "English - Native  |  Spanish - Professional Working Proficiency",
-        "style": {
-            "font": "calibri",
-            "color": "black",
-            "spacing": "normal",
-        },
-        "section_order": [
-            "summary",
-            "experience",
-            "projects",
-            "professional_projects",
-            "personal_projects",
-            "skills",
-            "education",
-            "certifications",
-            "awards",
-            "languages",
-        ],
+        "$schema": SCHEMA_URL,
+        "_version": __version__,
+        **ResumeCraft.sample(),
     }
 
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(template, indent=2,
-                      ensure_ascii=False), encoding="utf-8")
+    output.write_text(
+        json.dumps(template, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
     typer.echo(f"Template saved to {output}")
 
 

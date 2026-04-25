@@ -31,7 +31,8 @@ DEFAULT_SECTION_ORDER: tuple[SectionName, ...] = (
 VALID_SECTIONS = DEFAULT_SECTION_ORDER
 
 
-FontName = Literal["calibri", "arial", "times", "garamond", "georgia", "helvetica", "cambria"]
+FontName = Literal["calibri", "arial", "times",
+                   "garamond", "georgia", "helvetica", "cambria"]
 ColorTheme = Literal["black", "navy", "forest", "maroon", "slate", "royal"]
 SpacingPreset = Literal["compact", "normal", "relaxed"]
 
@@ -155,10 +156,12 @@ class Resume(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _drop_schema_ref(cls, data: Any) -> Any:
-        # Allow `$schema` (json schema editor hint) without complaining about it
-        if isinstance(data, dict) and "$schema" in data:
-            data = {k: v for k, v in data.items() if k != "$schema"}
+    def _drop_metadata(cls, data: Any) -> Any:
+        # Editor/tooling metadata that should not be validated as resume fields
+        if isinstance(data, dict):
+            metadata_keys = {"$schema", "_version"}
+            if metadata_keys.intersection(data):
+                data = {k: v for k, v in data.items() if k not in metadata_keys}
         return data
 
     @field_validator("section_order")
@@ -168,11 +171,3 @@ class Resume(BaseModel):
             dupes = sorted({s for s in v if v.count(s) > 1})
             raise ValueError(f"duplicate sections in section_order: {dupes}")
         return v
-
-    @classmethod
-    def from_json(cls, path: str) -> "Resume":
-        import json
-        from pathlib import Path
-
-        data = json.loads(Path(path).read_text(encoding="utf-8"))
-        return cls(**data)

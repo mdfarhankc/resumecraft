@@ -1,5 +1,6 @@
 {
-  "$schema": "https://raw.githubusercontent.com/mdfarhankc/resumecraft/main/resumecraft-schema.json",
+  "$schema": "https://raw.githubusercontent.com/mdfarhankc/resumecraft/main/schema.json",
+  "_version": "0.6.0",
   "name": "ALEX MORGAN",
   "contact": {
     "location": "Berlin, Germany",

@@ -1,3 +1,4 @@
+import io
 from pathlib import Path
 
 from docx import Document
@@ -45,7 +46,7 @@ class DocxBuilder:
             section.right_margin = RIGHT_MARGIN
 
         style = self.doc.styles["Normal"]
-        style.font.name = self._style["font_name"]
+        style.font.name = self._style.font_name
         style.font.size = Pt(10.5)
 
     def build(self) -> DocumentObject:
@@ -60,9 +61,15 @@ class DocxBuilder:
 
         return self.doc
 
-    def save(self, output_path: str | Path) -> Path:
+    def save(self, path: str | Path) -> Path:
         self.build()
-        path = Path(output_path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        self.doc.save(str(path))
-        return path
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        self.doc.save(str(target))
+        return target
+
+    def to_bytes(self) -> bytes:
+        self.build()
+        buf = io.BytesIO()
+        self.doc.save(buf)
+        return buf.getvalue()

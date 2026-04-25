@@ -69,6 +69,16 @@ class TestResume:
         r = Resume.model_validate(data)
         assert r.name == "Test"
 
+    def test_version_key_is_allowed(self):
+        data = {
+            "_version": "0.6.0",
+            "name": "Test",
+            "contact": {"location": "NY", "email": "a@b.com", "phone": "123"},
+            "summary": "Test",
+        }
+        r = Resume.model_validate(data)
+        assert r.name == "Test"
+
     def test_missing_required_fields(self):
         with pytest.raises(ValidationError) as exc_info:
             Resume(name="Test")
@@ -85,21 +95,6 @@ class TestResume:
                 ),
                 summary="Test",
             )
-
-    def test_from_json(self, sample_json_path, tmp_path):
-        resume = Resume.from_json(str(sample_json_path))
-        assert resume.name == "JOHN DOE"
-        assert resume.contact.email == "johndoe@email.com"
-
-    def test_from_json_file_not_found(self):
-        with pytest.raises(FileNotFoundError):
-            Resume.from_json("nonexistent.json")
-
-    def test_from_json_invalid(self, tmp_path):
-        bad_file = tmp_path / "bad.json"
-        bad_file.write_text('{"name": 123}', encoding="utf-8")
-        with pytest.raises(ValidationError):
-            Resume.from_json(str(bad_file))
 
 
 class TestContact:

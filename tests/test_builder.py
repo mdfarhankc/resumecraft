@@ -76,8 +76,8 @@ class TestDocxBuilder:
             assert section.right_margin == RIGHT_MARGIN
 
     def test_sample_json_builds(self, sample_json_path, tmp_path):
-        from resumecraft.models import Resume
-        resume = Resume.from_json(str(sample_json_path))
+        from resumecraft import ResumeCraft
+        resume = ResumeCraft.from_jsonfile(sample_json_path).resume
         output = tmp_path / "sample.docx"
         DocxBuilder(resume).save(output)
         assert output.exists()

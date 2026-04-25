@@ -66,7 +66,7 @@ class TestBuild:
         txt.write_text("not json", encoding="utf-8")
         result = runner.invoke(app, ["build", str(txt)])
         assert result.exit_code == 1
-        assert "not a JSON file" in result.output
+        assert "must be a .json" in result.output
 
     def test_build_binary_input(self, tmp_path):
         # Rename a binary to .json to bypass the extension check
@@ -80,6 +80,18 @@ class TestBuild:
         result = runner.invoke(app, ["build", str(sample_json_path), "-o", str(tmp_path)])
         assert result.exit_code == 1
         assert "is a directory" in result.output
+
+    def test_build_yaml_input(self, sample_json_path, tmp_path):
+        import json
+
+        import yaml
+        data = json.loads(sample_json_path.read_text(encoding="utf-8"))
+        yaml_path = tmp_path / "resume.yaml"
+        yaml_path.write_text(yaml.safe_dump(data))
+        out = tmp_path / "out.docx"
+        result = runner.invoke(app, ["build", str(yaml_path), "-o", str(out)])
+        assert result.exit_code == 0
+        assert out.exists()
 
     def test_build_pdf_flag_uses_input_stem(self, sample_json_path, tmp_path, monkeypatch):
         # Stub docx2pdf to avoid requiring Word

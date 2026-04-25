@@ -89,7 +89,9 @@ from resumecraft import ResumeCraft
 
 # Load from anywhere
 rc = ResumeCraft.from_jsonfile("my-resume.json")
+rc = ResumeCraft.from_yamlfile("my-resume.yaml")      # needs: pip install resumecraft[yaml]
 rc = ResumeCraft.from_json('{"name": "John", ...}')   # JSON string
+rc = ResumeCraft.from_yaml("name: John\n...")         # YAML string
 rc = ResumeCraft.from_bytes(uploaded_bytes)           # raw bytes (uploads, request body)
 rc = ResumeCraft.from_dict({"name": "John", ...})     # dict
 
@@ -175,10 +177,13 @@ See the [examples/](examples/) folder for more complete examples including Djang
 The Pydantic model and the renderer are available for power users who need more control:
 
 ```python
+import json
+from pathlib import Path
 from resumecraft.models import Resume
 from resumecraft.builder import DocxBuilder
 
-resume = Resume.from_json("my-resume.json")
+data = json.loads(Path("my-resume.json").read_text())
+resume = Resume.model_validate(data)
 DocxBuilder(resume).save("resume.docx")
 ```
 
@@ -188,7 +193,7 @@ Run `resumecraft init` to generate a full template. Here's the structure:
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/mdfarhankc/resumecraft/main/resumecraft-schema.json",
+  "$schema": "https://raw.githubusercontent.com/mdfarhankc/resumecraft/main/schema.json",
   "name": "Your Name",
   "contact": {
     "location": "City, Country",
@@ -355,7 +360,7 @@ Reference the schema in your JSON for autocomplete and validation in VS Code, In
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/mdfarhankc/resumecraft/main/resumecraft-schema.json",
+  "$schema": "https://raw.githubusercontent.com/mdfarhankc/resumecraft/main/schema.json",
   "name": "Your Name",
   ...
 }
@@ -372,7 +377,7 @@ resumecraft/
 ├── CHANGELOG.md
 ├── LICENSE
 ├── Makefile
-├── resumecraft-schema.json     # JSON schema (regenerate with: make schema)
+├── schema.json                 # JSON schema (regenerate with: make schema)
 ├── examples/
 │   ├── library.py              # Library usage
 │   ├── web.py                  # FastAPI/Flask/Django pattern
