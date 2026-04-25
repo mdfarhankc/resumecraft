@@ -48,6 +48,27 @@ class TestResume:
                 section_order=["invalid_section"],
             )
 
+    def test_typo_in_field_name_raises(self):
+        # Strict mode: typing 'experiance' instead of 'experience' must fail loudly
+        with pytest.raises(ValidationError, match="experiance"):
+            Resume(
+                name="Test",
+                contact=Contact(location="NY", email="a@b.com", phone="123"),
+                summary="Test",
+                experiance=[],  # type: ignore[call-arg]
+            )
+
+    def test_schema_key_is_allowed(self):
+        # JSON files often have `$schema` for editor autocomplete -- shouldn't raise
+        data = {
+            "$schema": "https://example.com/schema.json",
+            "name": "Test",
+            "contact": {"location": "NY", "email": "a@b.com", "phone": "123"},
+            "summary": "Test",
+        }
+        r = Resume.model_validate(data)
+        assert r.name == "Test"
+
     def test_missing_required_fields(self):
         with pytest.raises(ValidationError) as exc_info:
             Resume(name="Test")

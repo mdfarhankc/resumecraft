@@ -3,13 +3,25 @@
 ## v0.6.0
 
 ### Added
+- `ResumeCraft.from_jsonfile`, `from_json` (string), `from_bytes`, `from_dict` factory methods. `from_bytes` handles UTF-8 BOM and rejects binary input cleanly.
+- `to_docx_bytes()` and `to_pdf_bytes()` for in-memory exports.
 - `--pdf` flag on `build` as a shortcut for `-o <input-name>.pdf`.
 - Reject duplicate entries in `section_order` at validation time.
+- Strict field validation: typos in JSON keys (e.g. `experiance` instead of `experience`) now raise instead of being silently ignored.
+- Python 3.14 in the CI test matrix.
 
 ### Changed
+- Internal refactor: rendering is now split into `sections.py` (Section classes + registry) and `render.py` (RenderContext + paragraph helpers). `DocxBuilder` shrunk from ~330 lines to ~70. Output is byte-identical.
+- `ResumeCraft` is the only class exported at the top level. `Resume` and `DocxBuilder` are still importable from `resumecraft.models` and `resumecraft.builder`.
 - `typer` is a core dependency again so `uvx resumecraft` and `pipx install resumecraft` work without the `[cli]` extra. The `[cli]` extra is kept as a no-op for backward compat.
 - Default output filename now uses the input file's stem, e.g. `my-resume_2026-04-24_11-33pm.docx` instead of `resume_...docx`.
 - CLI catches output-path errors (locked files, directories, disk issues) with a clear message instead of a traceback.
+- Examples folder collapsed to `library.py` and `web.py`.
+
+### Deprecated
+- `ResumeCraft(dict)` and `ResumeCraft(json_string)` — use `ResumeCraft.from_dict()` / `from_json()`.
+- `ResumeCraft.from_json(file_path)` — use `ResumeCraft.from_jsonfile(path)`.
+- `ResumeCraft.to_bytes()` — use `to_docx_bytes()`.
 
 ### Fixed
 - CLI shows a clear error (instead of a Python traceback) when passed a non-JSON or binary file.

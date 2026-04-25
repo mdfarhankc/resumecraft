@@ -1,6 +1,6 @@
-from typing import Literal
+from typing import Any, Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 SectionName = Literal[
     "summary",
@@ -36,7 +36,12 @@ ColorTheme = Literal["black", "navy", "forest", "maroon", "slate", "royal"]
 SpacingPreset = Literal["compact", "normal", "relaxed"]
 
 
+_strict = ConfigDict(extra="forbid")
+
+
 class StyleOptions(BaseModel):
+    model_config = _strict
+
     font: FontName = "calibri"
     color: ColorTheme = "black"
     spacing: SpacingPreset = "normal"
@@ -44,11 +49,15 @@ class StyleOptions(BaseModel):
 
 
 class Link(BaseModel):
+    model_config = _strict
+
     label: str
     url: str
 
 
 class Contact(BaseModel):
+    model_config = _strict
+
     location: str = Field(min_length=1)
     email: str = Field(min_length=1)
     phone: str = Field(min_length=1)
@@ -56,6 +65,8 @@ class Contact(BaseModel):
 
 
 class Experience(BaseModel):
+    model_config = _strict
+
     company: str
     location: str
     title: str
@@ -64,6 +75,8 @@ class Experience(BaseModel):
 
 
 class Project(BaseModel):
+    model_config = _strict
+
     name: str
     subtitle: str
     tech_stack: str | None = None
@@ -80,17 +93,23 @@ class Project(BaseModel):
 
 
 class Skill(BaseModel):
+    model_config = _strict
+
     category: str
     items: str
 
 
 class Education(BaseModel):
+    model_config = _strict
+
     institution: str
     degree: str
     duration: str
 
 
 class Certification(BaseModel):
+    model_config = _strict
+
     name: str
     issuer: str
     date: str
@@ -106,6 +125,8 @@ class Certification(BaseModel):
 
 
 class Award(BaseModel):
+    model_config = _strict
+
     title: str
     issuer: str
     date: str
@@ -113,6 +134,8 @@ class Award(BaseModel):
 
 
 class Resume(BaseModel):
+    model_config = _strict
+
     name: str
     contact: Contact
     summary: str
@@ -129,6 +152,14 @@ class Resume(BaseModel):
     section_order: list[SectionName] | None = None
     headings: dict[str, str] = {}
     style: StyleOptions = StyleOptions()
+
+    @model_validator(mode="before")
+    @classmethod
+    def _drop_schema_ref(cls, data: Any) -> Any:
+        # Allow `$schema` (json schema editor hint) without complaining about it
+        if isinstance(data, dict) and "$schema" in data:
+            data = {k: v for k, v in data.items() if k != "$schema"}
+        return data
 
     @field_validator("section_order")
     @classmethod

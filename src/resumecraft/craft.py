@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import io
 import json
+import tempfile
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -10,15 +12,23 @@ from resumecraft.models import Resume
 
 
 class ResumeCraft:
-    """Simple API for loading resume data and exporting to docx/pdf."""
+    """Main entry point: load resume data and export to docx/pdf/bytes."""
 
-    def __init__(self, data: dict[str, Any] | Resume | str) -> None:
-        if isinstance(data, Resume):
-            self.resume = data
-        elif isinstance(data, str):
-            self.resume = Resume.model_validate(json.loads(data))
+    def __init__(self, resume: Resume | dict[str, Any] | str) -> None:
+        if isinstance(resume, Resume):
+            self.resume = resume
+            return
+
+        warnings.warn(
+            "Passing a dict or JSON string directly to ResumeCraft() is deprecated. "
+            "Use ResumeCraft.from_dict() or ResumeCraft.from_json() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        if isinstance(resume, str):
+            self.resume = Resume.model_validate(json.loads(resume))
         else:
-            self.resume = Resume.model_validate(data)
+            self.resume = Resume.model_validate(resume)
 
     def __repr__(self) -> str:
         filled = [
@@ -34,10 +44,42 @@ class ResumeCraft:
         sections = sum(1 for s in filled if s)
         return f"ResumeCraft(name={self.resume.name!r}, sections={sections})"
 
+    # ---- factories ----
+
     @classmethod
-    def from_json(cls, path: str | Path) -> ResumeCraft:
-        data = json.loads(Path(path).read_text(encoding="utf-8"))
-        return cls(data)
+    def from_jsonfile(cls, path: str | Path) -> ResumeCraft:
+        text = Path(path).read_text(encoding="utf-8-sig")
+        return cls.from_json(text)
+
+    @classmethod
+    def from_json(cls, text: str | Path) -> ResumeCraft:
+        # Backward compat: old API was from_json(file_path)
+        s = str(text).lstrip()
+        if not s.startswith(("{", "[")):
+            warnings.warn(
+                "ResumeCraft.from_json() with a file path is deprecated. "
+                "Use ResumeCraft.from_jsonfile(path) instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            return cls.from_jsonfile(str(text))
+        return cls.from_dict(json.loads(s))
+
+    @classmethod
+    def from_bytes(cls, data: bytes) -> ResumeCraft:
+        try:
+            text = data.decode("utf-8-sig")
+        except UnicodeDecodeError as e:
+            raise ValueError(
+                "Input is not valid UTF-8. Did you pass a binary file?"
+            ) from e
+        return cls.from_json(text)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> ResumeCraft:
+        return cls(Resume.model_validate(data))
+
+    # ---- discovery helpers ----
 
     @staticmethod
     def sample() -> dict[str, Any]:
@@ -124,13 +166,44 @@ class ResumeCraft:
     def json_schema() -> dict[str, Any]:
         return Resume.model_json_schema()
 
+    # ---- exports ----
+
     def to_dict(self) -> dict[str, Any]:
         return self.resume.model_dump()
 
     def to_docx(self, path: str | Path) -> Path:
         return DocxBuilder(self.resume).save(path)
 
+    def to_docx_bytes(self) -> bytes:
+        doc = DocxBuilder(self.resume).build()
+        buf = io.BytesIO()
+        doc.save(buf)
+        return buf.getvalue()
+
+    def to_bytes(self) -> bytes:
+        warnings.warn(
+            "ResumeCraft.to_bytes() is deprecated, use to_docx_bytes() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.to_docx_bytes()
+
     def to_pdf(self, path: str | Path) -> Path:
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self._render_pdf(path)
+        return path
+
+    def to_pdf_bytes(self) -> bytes:
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+            pdf_path = Path(tmp.name)
+        try:
+            self._render_pdf(pdf_path)
+            return pdf_path.read_bytes()
+        finally:
+            pdf_path.unlink(missing_ok=True)
+
+    def _render_pdf(self, target: Path) -> None:
         try:
             from docx2pdf import convert
         except ImportError:
@@ -138,24 +211,10 @@ class ResumeCraft:
                 "PDF export requires docx2pdf. Install with: pip install resumecraft[pdf]"
             ) from None
 
-        import tempfile
-
-        path = Path(path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-
         with tempfile.NamedTemporaryFile(suffix=".docx", delete=False) as tmp:
-            tmp_path = Path(tmp.name)
-
+            docx_path = Path(tmp.name)
         try:
-            self.to_docx(tmp_path)
-            convert(str(tmp_path), str(path))
+            DocxBuilder(self.resume).save(docx_path)
+            convert(str(docx_path), str(target))
         finally:
-            tmp_path.unlink(missing_ok=True)
-
-        return path
-
-    def to_bytes(self) -> bytes:
-        doc = DocxBuilder(self.resume).build()
-        buf = io.BytesIO()
-        doc.save(buf)
-        return buf.getvalue()
+            docx_path.unlink(missing_ok=True)

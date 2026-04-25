@@ -87,96 +87,96 @@ When `-o` is omitted from `watch`, the output defaults to `<input-name>.pdf`. PD
 ```python
 from resumecraft import ResumeCraft
 
-# From a JSON file
-rc = ResumeCraft.from_json("my-resume.json")
-rc.to_docx("resume.docx")
+# Load from anywhere
+rc = ResumeCraft.from_jsonfile("my-resume.json")
+rc = ResumeCraft.from_json('{"name": "John", ...}')   # JSON string
+rc = ResumeCraft.from_bytes(uploaded_bytes)           # raw bytes (uploads, request body)
+rc = ResumeCraft.from_dict({"name": "John", ...})     # dict
 
-# From a dict
-rc = ResumeCraft({"name": "John Doe", "contact": {...}, "summary": "..."})
-rc.to_docx("resume.docx")
+# Export
+rc.to_docx("resume.docx")            # save .docx
+rc.to_pdf("resume.pdf")              # save .pdf  (needs: pip install resumecraft[pdf])
+rc.to_docx_bytes()                   # docx as bytes (for streaming)
+rc.to_pdf_bytes()                    # pdf as bytes
+rc.to_dict()                         # back to a dict
 
-# From a JSON string
-rc = ResumeCraft('{"name": "John Doe", ...}')
-
-# Get bytes (for web frameworks)
-content = rc.to_bytes()
-
-# Export as PDF (requires: pip install resumecraft[pdf])
-rc.to_pdf("resume.pdf")
-
-# Export back to dict
-data = rc.to_dict()
-
-# Get a sample template to see all fields
-sample = ResumeCraft.sample()
-
-# Get JSON schema for editor validation
-schema = ResumeCraft.json_schema()
+# Discover the schema
+ResumeCraft.sample()                 # sample dict with all fields
+ResumeCraft.json_schema()            # JSON schema (for editor autocomplete)
 ```
 
 ### FastAPI example
 
 ```python
 import io
-import tempfile
-from fastapi import FastAPI
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi import FastAPI, UploadFile
+from fastapi.responses import Response, StreamingResponse
+
 from resumecraft import ResumeCraft
 
 app = FastAPI()
 
+
 @app.post("/resume/docx")
 def generate_docx(data: dict):
-    rc = ResumeCraft(data)
+    rc = ResumeCraft.from_dict(data)
     return StreamingResponse(
-        io.BytesIO(rc.to_bytes()),
+        io.BytesIO(rc.to_docx_bytes()),
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         headers={"Content-Disposition": "attachment; filename=resume.docx"},
     )
 
+
 @app.post("/resume/pdf")
 def generate_pdf(data: dict):
-    rc = ResumeCraft(data)
-    tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
-    rc.to_pdf(tmp.name)
-    return FileResponse(tmp.name, filename="resume.pdf", media_type="application/pdf")
+    return Response(
+        ResumeCraft.from_dict(data).to_pdf_bytes(),
+        media_type="application/pdf",
+    )
+
+
+@app.post("/resume/upload")
+async def from_upload(file: UploadFile):
+    rc = ResumeCraft.from_bytes(await file.read())
+    return Response(rc.to_pdf_bytes(), media_type="application/pdf")
 ```
 
 ### Flask example
 
 ```python
 import io
-import tempfile
 from flask import Flask, request, send_file
+
 from resumecraft import ResumeCraft
 
 app = Flask(__name__)
 
+
 @app.post("/resume/docx")
 def generate_docx():
-    rc = ResumeCraft(request.json)
+    rc = ResumeCraft.from_dict(request.json)
     return send_file(
-        io.BytesIO(rc.to_bytes()),
+        io.BytesIO(rc.to_docx_bytes()),
         mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         download_name="resume.docx",
     )
 
+
 @app.post("/resume/pdf")
 def generate_pdf():
-    rc = ResumeCraft(request.json)
-    tmp = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
-    rc.to_pdf(tmp.name)
-    return send_file(tmp.name, mimetype="application/pdf", download_name="resume.pdf")
+    pdf = ResumeCraft.from_dict(request.json).to_pdf_bytes()
+    return send_file(io.BytesIO(pdf), mimetype="application/pdf", download_name="resume.pdf")
 ```
 
 See the [examples/](examples/) folder for more complete examples including Django.
 
 ### Advanced usage
 
-You can also use the lower-level `Resume` and `DocxBuilder` classes directly:
+The Pydantic model and the renderer are available for power users who need more control:
 
 ```python
-from resumecraft import Resume, DocxBuilder
+from resumecraft.models import Resume
+from resumecraft.builder import DocxBuilder
 
 resume = Resume.from_json("my-resume.json")
 DocxBuilder(resume).save("resume.docx")
@@ -382,10 +382,12 @@ resumecraft/
 │   ├── __init__.py
 │   ├── craft.py                # ResumeCraft (entry point)
 │   ├── cli.py                  # CLI commands
+│   ├── builder.py              # DocxBuilder (slim, drives the rendering)
+│   ├── sections.py             # Section classes + SECTION_REGISTRY
+│   ├── render.py               # RenderContext + paragraph helpers
 │   ├── models.py               # Pydantic data models
-│   ├── builder.py              # DocxBuilder
 │   ├── styles.py               # font/color/spacing maps
-│   └── utils.py                # paragraph helpers
+│   └── utils.py                # low-level docx helpers (hyperlinks, borders)
 └── tests/
     ├── fixtures/sample.json
     ├── test_models.py
