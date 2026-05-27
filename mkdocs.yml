@@ -1,0 +1,93 @@
+site_name: ResumeCraft
+site_url: https://mdfarhankc.github.io/resumecraft
+site_description: Generate professional resumes from JSON or YAML. Export to Word or PDF.
+site_author: Mohammed Farhan K C
+
+repo_name: mdfarhankc/resumecraft
+repo_url: https://github.com/mdfarhankc/resumecraft
+
+copyright: Copyright &copy; 2025 Mohammed Farhan K C
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - toc.follow
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quickstart.md
+  - CLI Reference: cli.md
+  - Python Library: library.md
+  - Resume Format:
+      - Overview: format/index.md
+      - Field Reference: format/fields.md
+      - Styling: format/styling.md
+      - Examples: format/examples.md
+  - Integrations: integrations.md
+  - Advanced: advanced.md
+  - Contributing: contributing.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - admonition
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - minify:
+      minify_html: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mdfarhankc/resumecraft
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/resumecraft/
