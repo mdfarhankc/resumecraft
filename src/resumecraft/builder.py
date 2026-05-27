@@ -27,7 +27,8 @@ class DocxBuilder:
         self.resume = resume
         self.doc = Document()
         self._style = resolve_style(resume.style)
-        self._headings = {**DEFAULT_HEADINGS, **resume.headings}
+        self._headings: dict[str, str] = {**DEFAULT_HEADINGS, **resume.headings}  # type: ignore[dict-item]
+        self._built = False
         self._setup_document()
         self._ctx = RenderContext(
             doc=self.doc,
@@ -50,6 +51,9 @@ class DocxBuilder:
         style.font.size = Pt(10.5)
 
     def build(self) -> DocumentObject:
+        if self._built:
+            return self.doc
+
         HeaderSection().render(self._ctx, self.resume)
 
         order = self.resume.section_order or DEFAULT_SECTION_ORDER
@@ -59,6 +63,7 @@ class DocxBuilder:
                 continue
             section.render(self._ctx, self.resume)
 
+        self._built = True
         return self.doc
 
     def save(self, path: str | Path) -> Path:

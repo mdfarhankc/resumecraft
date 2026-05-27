@@ -41,6 +41,8 @@ class ResumeCraft:
             self.resume.personal_projects,
             self.resume.skills,
             self.resume.education,
+            self.resume.certifications,
+            self.resume.awards,
             self.resume.languages,
         ]
         sections = sum(1 for s in filled if s)
@@ -55,8 +57,16 @@ class ResumeCraft:
 
     @classmethod
     def from_json(cls, text: str | Path) -> ResumeCraft:
-        # Backward compat: old API was from_json(file_path)
-        s = str(text).lstrip()
+        if isinstance(text, Path):
+            warnings.warn(
+                "ResumeCraft.from_json() with a file path is deprecated "
+                "and will be removed in v1.0. "
+                "Use ResumeCraft.from_jsonfile(path) instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            return cls.from_jsonfile(text)
+        s = text.lstrip()
         if not s.startswith(("{", "[")):
             warnings.warn(
                 "ResumeCraft.from_json() with a file path is deprecated "
@@ -65,8 +75,21 @@ class ResumeCraft:
                 DeprecationWarning,
                 stacklevel=2,
             )
-            return cls.from_jsonfile(str(text))
-        return cls.from_dict(json.loads(s))
+            return cls.from_jsonfile(text)
+        try:
+            return cls.from_dict(json.loads(s))
+        except json.JSONDecodeError:
+            path = Path(text.strip())
+            if path.suffix in (".json", ".yaml", ".yml"):
+                warnings.warn(
+                    "ResumeCraft.from_json() with a file path is deprecated "
+                    "and will be removed in v1.0. "
+                    "Use ResumeCraft.from_jsonfile(path) instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                return cls.from_jsonfile(path)
+            raise
 
     @classmethod
     def from_bytes(cls, data: bytes) -> ResumeCraft:

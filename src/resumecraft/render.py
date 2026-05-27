@@ -139,5 +139,5 @@ def add_link_line(ctx: RenderContext, label: str, url: str) -> None:
     p = ctx.doc.add_paragraph()
     p.paragraph_format.space_after = Pt(2)
     run(ctx, p, label, size=TECH_LINE_SIZE)
-    add_hyperlink(p, url, url, ctx.style.link_color, ctx.style.font_name)
+    add_hyperlink(p, url, url, ctx.style.link_color, ctx.style.font_name, TECH_LINE_SIZE)
     keep_with_next(p)

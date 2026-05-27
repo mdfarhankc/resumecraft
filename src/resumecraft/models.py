@@ -139,6 +139,7 @@ class Resume(BaseModel):
 
     name: str
     contact: Contact
+    photo: str | None = None
     summary: str
     bold_keywords: list[str] = []
     experience: list[Experience] = []
@@ -151,7 +152,7 @@ class Resume(BaseModel):
     awards: list[Award] = []
     languages: str = ""
     section_order: list[SectionName] | None = None
-    headings: dict[str, str] = {}
+    headings: dict[SectionName, str] = {}
     style: StyleOptions = StyleOptions()
 
     @model_validator(mode="before")

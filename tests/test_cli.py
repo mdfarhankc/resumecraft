@@ -181,14 +181,27 @@ class TestWatchMode:
         assert "watchfiles" in result.output
 
 
+def test_open_file_windows(monkeypatch):
+    import sys as _sys
+
+    from resumecraft import cli
+    calls: list[object] = []
+    monkeypatch.setattr(_sys, "platform", "win32")
+    monkeypatch.setattr(cli.os, "startfile", lambda p: calls.append(p), raising=False)
+    cli._open_file(cli.Path("x.docx"))
+    assert len(calls) == 1
+
+
 @pytest.mark.parametrize("system,expected_cmd", [
-    ("Windows", "start"),
     ("Darwin", "open"),
     ("Linux", "xdg-open"),
 ])
-def test_open_file(monkeypatch, system, expected_cmd):
+def test_open_file_unix(monkeypatch, system, expected_cmd):
+    import sys as _sys
+
     from resumecraft import cli
     calls = []
+    monkeypatch.setattr(_sys, "platform", "linux")
     monkeypatch.setattr(cli.platform, "system", lambda: system)
     monkeypatch.setattr(cli.subprocess, "Popen", lambda *a, **kw: calls.append(a))
     cli._open_file(cli.Path("x.docx"))

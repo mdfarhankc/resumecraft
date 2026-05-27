@@ -1,6 +1,8 @@
 import json
+import os
 import platform
 import subprocess
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -100,6 +102,9 @@ def _save_safely(builder: DocxBuilder, output: Path) -> Path:
         raise typer.Exit(1)
     try:
         return builder.save(output)
+    except ValueError as e:
+        typer.echo(f"Error: {e}", err=True)
+        raise typer.Exit(1) from e
     except PermissionError as e:
         typer.echo(f"Error: Can't write to {output} (locked or read-only).", err=True)
         typer.echo("  Close the file in Word/another app and try again.", err=True)
@@ -110,10 +115,9 @@ def _save_safely(builder: DocxBuilder, output: Path) -> Path:
 
 
 def _open_file(path: Path) -> None:
-    system = platform.system()
-    if system == "Windows":
-        subprocess.Popen(["start", "", str(path)], shell=True)
-    elif system == "Darwin":
+    if sys.platform == "win32":
+        os.startfile(path)
+    elif platform.system() == "Darwin":
         subprocess.Popen(["open", str(path)])
     else:
         subprocess.Popen(["xdg-open", str(path)])
@@ -246,7 +250,8 @@ def watch(
     if open_file:
         _open_file(output)
 
-    for _ in watch_files(input_file.parent, watch_filter=lambda _, path: Path(path).name == input_file.name):
+    resolved = input_file.resolve()
+    for _ in watch_files(input_file.parent, watch_filter=lambda _, path: Path(path) == resolved):
         _rebuild()
 
 
