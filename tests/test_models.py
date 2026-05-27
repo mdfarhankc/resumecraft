@@ -194,6 +194,36 @@ class TestProject:
         )
         assert resume.name == "José García"
 
+    def test_photo_default_is_none(self, minimal_resume):
+        assert minimal_resume.photo is None
+
+    def test_photo_accepts_path(self):
+        r = Resume(
+            name="Test",
+            contact=Contact(location="NY", email="a@b.com", phone="123"),
+            summary="Test",
+            photo="/path/to/photo.jpg",
+        )
+        assert r.photo == "/path/to/photo.jpg"
+
+    def test_photo_accepts_url(self):
+        r = Resume(
+            name="Test",
+            contact=Contact(location="NY", email="a@b.com", phone="123"),
+            summary="Test",
+            photo="https://example.com/photo.jpg",
+        )
+        assert r.photo == "https://example.com/photo.jpg"
+
+    def test_photo_accepts_none(self):
+        r = Resume(
+            name="Test",
+            contact=Contact(location="NY", email="a@b.com", phone="123"),
+            summary="Test",
+            photo=None,
+        )
+        assert r.photo is None
+
     def test_project_legacy_link_and_new_links_combined(self):
         proj = Project(
             name="Test",

@@ -2,6 +2,14 @@ import pytest
 
 from resumecraft.models import Contact, Education, Experience, Link, Project, Resume, Skill
 
+# Minimal valid 1x1 white PNG (69 bytes)
+MINIMAL_PNG = (
+    b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01"
+    b"\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde\x00"
+    b"\x00\x00\x0cIDATx\x9cc\xf8\xff\xff?\x00\x05\xfe\x02"
+    b"\xfe\r\xefF\xb8\x00\x00\x00\x00IEND\xaeB`\x82"
+)
+
 
 @pytest.fixture
 def minimal_resume():

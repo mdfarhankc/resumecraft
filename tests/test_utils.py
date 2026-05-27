@@ -1,6 +1,10 @@
+import io
 import re
+import urllib.error
 
-from resumecraft.utils import build_bold_pattern
+import pytest
+
+from resumecraft.utils import build_bold_pattern, load_photo_image
 
 
 class TestBuildBoldPattern:
@@ -27,3 +31,41 @@ class TestBuildBoldPattern:
         parts = pattern.split("Used C++ and Node.js together.")
         assert "C++" in parts
         assert "Node.js" in parts
+
+
+class TestLoadPhotoImage:
+    def test_loads_local_file(self, tmp_path):
+        from tests.conftest import MINIMAL_PNG
+        img = tmp_path / "photo.png"
+        img.write_bytes(MINIMAL_PNG)
+        result = load_photo_image(str(img))
+        assert isinstance(result, io.BytesIO)
+        assert len(result.getvalue()) > 0
+
+    def test_raises_for_missing_file(self):
+        with pytest.raises(ValueError, match="not found"):
+            load_photo_image("/nonexistent/photo.jpg")
+
+    def test_loads_from_url(self, monkeypatch):
+        from tests.conftest import MINIMAL_PNG
+        monkeypatch.setattr(
+            "resumecraft.utils.urllib.request.urlopen",
+            lambda url, timeout=None: io.BytesIO(MINIMAL_PNG),
+        )
+        result = load_photo_image("https://example.com/photo.png")
+        assert isinstance(result, io.BytesIO)
+        assert len(result.getvalue()) > 0
+
+    def test_raises_for_http_error(self, monkeypatch):
+        def _raise(*a, **kw):
+            raise urllib.error.HTTPError("https://x.com/404.png", 404, "Not Found", {}, None)
+        monkeypatch.setattr("resumecraft.utils.urllib.request.urlopen", _raise)
+        with pytest.raises(ValueError, match="HTTP 404"):
+            load_photo_image("https://x.com/404.png")
+
+    def test_raises_for_url_error(self, monkeypatch):
+        def _raise(*a, **kw):
+            raise urllib.error.URLError("Connection refused")
+        monkeypatch.setattr("resumecraft.utils.urllib.request.urlopen", _raise)
+        with pytest.raises(ValueError, match="Connection refused"):
+            load_photo_image("https://x.com/photo.png")

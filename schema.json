@@ -1,6 +1,7 @@
 {
   "$defs": {
     "Award": {
+      "additionalProperties": false,
       "properties": {
         "title": {
           "title": "Title",
@@ -36,6 +37,7 @@
       "type": "object"
     },
     "Certification": {
+      "additionalProperties": false,
       "properties": {
         "name": {
           "title": "Name",
@@ -78,6 +80,7 @@
       "type": "object"
     },
     "Contact": {
+      "additionalProperties": false,
       "properties": {
         "location": {
           "minLength": 1,
@@ -112,6 +115,7 @@
       "type": "object"
     },
     "Education": {
+      "additionalProperties": false,
       "properties": {
         "institution": {
           "title": "Institution",
@@ -135,6 +139,7 @@
       "type": "object"
     },
     "Experience": {
+      "additionalProperties": false,
       "properties": {
         "company": {
           "title": "Company",
@@ -171,6 +176,7 @@
       "type": "object"
     },
     "Link": {
+      "additionalProperties": false,
       "properties": {
         "label": {
           "title": "Label",
@@ -189,6 +195,7 @@
       "type": "object"
     },
     "Project": {
+      "additionalProperties": false,
       "properties": {
         "name": {
           "title": "Name",
@@ -246,6 +253,7 @@
       "type": "object"
     },
     "Skill": {
+      "additionalProperties": false,
       "properties": {
         "category": {
           "title": "Category",
@@ -264,6 +272,7 @@
       "type": "object"
     },
     "StyleOptions": {
+      "additionalProperties": false,
       "properties": {
         "font": {
           "default": "calibri",
@@ -312,6 +321,7 @@
       "type": "object"
     }
   },
+  "additionalProperties": false,
   "properties": {
     "name": {
       "title": "Name",
@@ -319,6 +329,18 @@
     },
     "contact": {
       "$ref": "#/$defs/Contact"
+    },
+    "photo": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Photo"
     },
     "summary": {
       "title": "Summary",
@@ -433,6 +455,20 @@
         "type": "string"
       },
       "default": {},
+      "propertyNames": {
+        "enum": [
+          "summary",
+          "experience",
+          "projects",
+          "professional_projects",
+          "personal_projects",
+          "skills",
+          "education",
+          "certifications",
+          "awards",
+          "languages"
+        ]
+      },
       "title": "Headings",
       "type": "object"
     },
@@ -451,8 +487,6 @@
     "contact",
     "summary"
   ],
-  "title": "ResumeCraft Resume",
-  "type": "object",
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "description": "JSON schema for resumecraft resume data"
+  "title": "Resume",
+  "type": "object"
 }

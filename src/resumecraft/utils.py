@@ -1,9 +1,18 @@
+import io
 import re
+import urllib.error
+import urllib.request
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 from docx.opc.constants import RELATIONSHIP_TYPE
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from docx.shared import Length
 from docx.text.paragraph import Paragraph
+
+if TYPE_CHECKING:
+    from docx.table import Table
 
 
 def keep_with_next(paragraph: Paragraph) -> None:
@@ -12,7 +21,7 @@ def keep_with_next(paragraph: Paragraph) -> None:
     pPr.append(OxmlElement("w:keepNext"))
 
 
-def add_hyperlink(paragraph: Paragraph, text: str, url: str, link_color: str = "0046B4", font_name: str = "Calibri") -> None:
+def add_hyperlink(paragraph: Paragraph, text: str, url: str, link_color: str = "0046B4", font_name: str = "Calibri", font_size: Length | None = None) -> None:
     """Append a clickable hyperlink run to the paragraph."""
     # Get access to the document's relationship part and create a new relation ID
     part = paragraph.part
@@ -35,8 +44,9 @@ def add_hyperlink(paragraph: Paragraph, text: str, url: str, link_color: str = "
     underline.set(qn("w:val"), "single")  # Underline
     rPr.append(underline)
 
+    size_val = str(round(font_size.pt * 2)) if font_size is not None else "19"
     size = OxmlElement("w:sz")
-    size.set(qn("w:val"), "19")
+    size.set(qn("w:val"), size_val)
     rPr.append(size)
 
     fonts = OxmlElement("w:rFonts")
@@ -86,3 +96,44 @@ def build_bold_pattern(keywords: list[str]) -> re.Pattern[str] | None:
     escaped = [re.escape(k) for k in sorted_kw]
     # Return regex
     return re.compile("(" + "|".join(escaped) + ")")
+
+
+def remove_table_borders(table: "Table") -> None:
+    tblPr = table._tblPr
+    tblBorders = OxmlElement("w:tblBorders")
+    for border_name in ("top", "left", "bottom", "right", "insideH", "insideV"):
+        el = OxmlElement(f"w:{border_name}")
+        el.set(qn("w:val"), "none")
+        el.set(qn("w:sz"), "0")
+        el.set(qn("w:space"), "0")
+        el.set(qn("w:color"), "auto")
+        tblBorders.append(el)
+    tblPr.append(tblBorders)
+
+
+def load_photo_image(source: str) -> io.BytesIO:
+    if source.startswith(("http://", "https://")):
+        try:
+            with urllib.request.urlopen(source, timeout=30) as resp:
+                data = resp.read()
+        except urllib.error.HTTPError as e:
+            raise ValueError(
+                f"Failed to fetch photo from URL: {source} (HTTP {e.code})"
+            ) from e
+        except urllib.error.URLError as e:
+            raise ValueError(
+                f"Failed to fetch photo from URL: {source} ({e.reason})"
+            ) from e
+    else:
+        photo_path = Path(source)
+        if not photo_path.is_file():
+            raise ValueError(f"Photo file not found: {source}")
+        try:
+            data = photo_path.read_bytes()
+        except OSError as e:
+            raise ValueError(f"Failed to read photo file: {source} ({e})") from e
+
+    if not data:
+        raise ValueError(f"Photo is empty: {source}")
+
+    return io.BytesIO(data)

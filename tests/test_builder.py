@@ -1,6 +1,9 @@
 
+import pytest
+
 from resumecraft.builder import DocxBuilder
 from resumecraft.models import StyleOptions
+from tests.conftest import MINIMAL_PNG
 
 
 class TestDocxBuilder:
@@ -231,3 +234,42 @@ class TestDocxBuilder:
         text = "\n".join(p.text for p in doc.paragraphs)
         assert "GitHub" in text
         assert "Live Demo" in text
+
+
+class TestPhotoHeader:
+    def test_build_with_photo_creates_table(self, minimal_resume, tmp_path):
+        img = tmp_path / "photo.png"
+        img.write_bytes(MINIMAL_PNG)
+        minimal_resume.photo = str(img)
+        doc = DocxBuilder(minimal_resume).build()
+        assert len(doc.tables) == 1
+        right_cell_text = doc.tables[0].cell(0, 1).text
+        assert "John Doe" in right_cell_text
+
+    def test_build_without_photo_has_no_table(self, minimal_resume):
+        doc = DocxBuilder(minimal_resume).build()
+        assert len(doc.tables) == 0
+
+    def test_ats_mode_skips_photo(self, minimal_resume, tmp_path):
+        img = tmp_path / "photo.png"
+        img.write_bytes(MINIMAL_PNG)
+        minimal_resume.photo = str(img)
+        minimal_resume.style = StyleOptions(ats=True)
+        doc = DocxBuilder(minimal_resume).build()
+        assert len(doc.tables) == 0
+        text = "\n".join(p.text for p in doc.paragraphs)
+        assert "John Doe" in text
+
+    def test_photo_invalid_path_raises(self, minimal_resume):
+        minimal_resume.photo = "/nonexistent/photo.jpg"
+        with pytest.raises(ValueError, match="not found"):
+            DocxBuilder(minimal_resume).build()
+
+    def test_photo_with_contact_links(self, full_resume, tmp_path):
+        img = tmp_path / "photo.png"
+        img.write_bytes(MINIMAL_PNG)
+        full_resume.photo = str(img)
+        doc = DocxBuilder(full_resume).build()
+        assert len(doc.tables) == 1
+        right_cell_text = doc.tables[0].cell(0, 1).text
+        assert "Jane Smith" in right_cell_text
