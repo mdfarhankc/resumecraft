@@ -28,7 +28,8 @@ from resumecraft.styles import (
     NAME_SIZE,
     PAGE_WIDTH,
     PHOTO_COL_WIDTH,
-    PHOTO_SIZE,
+    PHOTO_MAX_HEIGHT,
+    PHOTO_MAX_WIDTH,
 )
 from resumecraft.utils import add_hyperlink, load_photo_image, remove_table_borders
 
@@ -82,7 +83,17 @@ class HeaderSection(Section):
         photo_p = photo_cell.paragraphs[0]
         photo_p.paragraph_format.space_before = Pt(0)
         photo_p.paragraph_format.space_after = Pt(0)
-        photo_p.add_run().add_picture(image_stream, width=PHOTO_SIZE, height=PHOTO_SIZE)
+        # Pick the constraining dimension so the image fits within the passport-sized box
+        # without distortion, regardless of its native aspect ratio
+        from docx.image.image import Image as DocxImage
+
+        blob = image_stream.read()
+        image_stream.seek(0)
+        img = DocxImage.from_blob(blob)
+        if img.px_width / img.px_height >= PHOTO_MAX_WIDTH / PHOTO_MAX_HEIGHT:
+            photo_p.add_run().add_picture(image_stream, width=PHOTO_MAX_WIDTH)
+        else:
+            photo_p.add_run().add_picture(image_stream, height=PHOTO_MAX_HEIGHT)
 
         info_cell = table.cell(0, 1)
         info_cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
