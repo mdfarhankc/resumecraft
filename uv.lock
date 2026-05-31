@@ -1311,7 +1311,6 @@ wheels = [
 
 [[package]]
 name = "resumecraft"
-version = "0.6.0"
 source = { editable = "." }
 dependencies = [
     { name = "pydantic" },
@@ -1349,6 +1348,7 @@ yaml = [
 
 [package.metadata]
 requires-dist = [
+    { name = "docx2pdf", marker = "extra == 'all'", specifier = ">=0.1.8" },
     { name = "docx2pdf", marker = "extra == 'pdf'", specifier = ">=0.1.8" },
     { name = "mkdocs-material", marker = "extra == 'docs'", specifier = ">=9.6.0" },
     { name = "mkdocs-minify-plugin", marker = "extra == 'docs'", specifier = ">=0.8.0" },
@@ -1357,15 +1357,16 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=5.0.0" },
     { name = "python-docx", specifier = ">=1.2.0" },
+    { name = "pyyaml", marker = "extra == 'all'", specifier = ">=6.0" },
     { name = "pyyaml", marker = "extra == 'dev'", specifier = ">=6.0" },
     { name = "pyyaml", marker = "extra == 'yaml'", specifier = ">=6.0" },
-    { name = "resumecraft", extras = ["pdf", "watch", "yaml"], marker = "extra == 'all'" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.8.0" },
     { name = "typer", specifier = ">=0.15.0" },
     { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0" },
+    { name = "watchfiles", marker = "extra == 'all'", specifier = ">=1.0.0" },
     { name = "watchfiles", marker = "extra == 'watch'", specifier = ">=1.0.0" },
 ]
-provides-extras = ["pdf", "watch", "yaml", "all", "dev", "docs"]
+provides-extras = ["all", "dev", "docs", "pdf", "watch", "yaml"]
 
 [[package]]
 name = "rich"

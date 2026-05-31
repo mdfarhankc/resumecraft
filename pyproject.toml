@@ -1,6 +1,6 @@
 [project]
 name = "resumecraft"
-version = "0.7.0"
+dynamic = ["version"]
 description = "Generate professional resumes from JSON with DOCX/PDF export, custom styling, and web framework support."
 readme = "README.md"
 license = "MIT"
@@ -88,8 +88,11 @@ Changelog = "https://github.com/mdfarhankc/resumecraft/blob/main/CHANGELOG.md"
 resumecraft = "resumecraft.cli:app"
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/resumecraft"]
